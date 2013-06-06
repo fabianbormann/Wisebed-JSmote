@@ -11,16 +11,15 @@
 
 <div id="header">
     <ui:insert name="header">
-    		<div class="page-header">
-				<h1>Welcome to JSremote</h1>
+    <div class="container">
+	    <div class="row">
+	    	<div class="span12">
+		   		<div class="page-header">
+					<h1>JSmote for WISEBED Nodes</h1>
+				</div>
 			</div>
-    	
-          	<label>username</label>
-          	<input/>
-    		<label>password</label>
-          	<input type="password" value="Password input" />
-    	<!--  include your header file or uncomment the include below and create header.xhtml in this directory -->
-    	<!-- <ui:include src="header.xhtml"/> -->
+		</div>
+	</div>
     </ui:insert>
 </div>
 
@@ -37,12 +36,20 @@
 
 <div id="footer">
   <ui:insert name="footer">
-  <hr />
-    	Footer area.  See comments below this line in the source.
-    	<!--  include your header file or uncomment the include below and create footer.xhtml in this directory -->
-		<!--<ui:include src="footer.xhtml"/>  -->
-  </ui:insert>
+  	<div class="container">
+	  	<div class="row">
+		  	<div class="span12">
+				<hr />
+				Open Source project by Fabian Bormann GSoC 2013
+			</div>
+		</div>
+	</div>
+	</ui:insert>
 </div>
+		
+	  
+
+
 
 </body>
 
