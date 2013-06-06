@@ -1,7 +1,8 @@
 package beans;
 
-import javax.enterprise.context.RequestScoped;
+
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 
 @ManagedBean
 @RequestScoped
