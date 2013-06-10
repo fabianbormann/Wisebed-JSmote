@@ -46,6 +46,9 @@ public class User {
         Logger.getLogger(User.class.getName())
                 .log(Level.INFO, "try to reserve..");
         
-        return "manage";
+        if(this.username.isEmpty())
+            return "index";
+        else
+            return "manage";
     }
 }
