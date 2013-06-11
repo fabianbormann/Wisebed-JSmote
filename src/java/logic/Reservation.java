@@ -1,9 +1,32 @@
 package logic;
 
+
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+
+import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
+import de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper;
+import eu.wisebed.api.rs.ConfidentialReservationData;
+import eu.wisebed.api.rs.RS;
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.sm.SessionManagement;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SNAA;
+import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.testbed.api.rs.RSServiceHelper;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
+import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 /**
  *
  * @author Fabian
@@ -15,37 +38,91 @@ public class Reservation {
     private String password;
     private Integer offset;
     private Integer duration;
-    private ArrayList nodeURNs;
-    
+    private String nodeURNs;
     //TODO use variable endpoints
     String snaaEndpointURL = "http://wisebed.itm.uni-luebeck.de:8890/snaa";
     String rsEndpointURL = "http://wisebed.itm.uni-luebeck.de:8889/rs";
     String sessionManagementEndpointURL = "http://wisebed.itm.uni-luebeck.de:8888/sessions";
+    SNAA authenticationSystem = SNAAServiceHelper.getSNAAService(snaaEndpointURL);
+    RS reservationSystem = RSServiceHelper.getRSService(rsEndpointURL);
+    SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
     public Reservation(String urnPrefix, String username, String password,
-            String nodeURNs) {
-       
+            String nodeURNs) throws AuthenticationExceptionException, SNAAExceptionException,
+            ReservervationConflictExceptionException {
+        
         this.urnPrefix = urnPrefix;
         this.username = username;
         this.password = password;
-        this.nodeURNs = splitURNs(nodeURNs);
-     
+        this.nodeURNs = nodeURNs;
+
+        List credentialsList = new ArrayList();
+
+        AuthenticationTriple credentials = new AuthenticationTriple();
+
+        credentials.setUrnPrefix(urnPrefix);
+        credentials.setUsername(username);
+        credentials.setPassword(password);
+
+        credentialsList.add(credentials);
+
+        // do the authentication
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "Authenticating...");
+        List secretAuthenticationKeys = authenticationSystem.authenticate(credentialsList);
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "Successfully authenticated!");
+
+        // retrieve the node URNs of all iSense nodes
+        String serializedWiseML = sessionManagement.getNetwork();
+        List nodeURNsToReserve;
+        if (nodeURNs == null || "".equals(nodeURNs)) {
+            nodeURNsToReserve = WiseMLHelper.getNodeUrns(serializedWiseML, new String[]{});
+        } else {
+            nodeURNsToReserve = splitURNs(nodeURNs);
+        }
+
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
+                "Retrieved the node URNs of all iSense nodes: {}", Joiner.on(", ").join(nodeURNsToReserve));
+        // create reservation request data to wb-reserve all iSense nodes for 10 minutes
+        ConfidentialReservationData reservationData = BeanShellHelper.generateConfidentialReservationData(
+                nodeURNsToReserve,
+                new Date(System.currentTimeMillis() + (offset * 60 * 1000)), duration, TimeUnit.MINUTES,
+                urnPrefix, username);
+
+        // do the reservation
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
+                "Trying to reserve the following nodes: {}", nodeURNsToReserve);
+        try {
+            List secretReservationKeys = reservationSystem.makeReservation(
+                    BeanShellHelper.copySnaaToRs(secretAuthenticationKeys),
+                    reservationData);
+
+            Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
+                    "Successfully reserved nodes: {}", nodeURNsToReserve);
+            Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
+                    "Reservation Key(s): {}", BeanShellHelper.toString(secretReservationKeys));
+
+            Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
+                    BeanShellHelper.toString(secretReservationKeys));
+        } catch (Exception e) {
+            System.err.println("" + e);
+        }
     }
+
     /**
-     * Splitt the URNs by ";" as delimiter 
+     * Splitt the URNs by ";" as delimiter
+     *
      * @param nodeURNs
-     * @return 
+     * @return
      */
     private ArrayList splitURNs(String nodeURNasString) {
         ArrayList splittedURNs = Lists.newArrayList();
-        
+
         Pattern pattern = Pattern.compile(";");
         String[] URNs = pattern.split(nodeURNasString);
-        
+
         splittedURNs.addAll(Arrays.asList(URNs));
-        
+
         return splittedURNs;
-        
+
     }
-    
 }

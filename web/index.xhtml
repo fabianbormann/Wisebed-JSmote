@@ -6,6 +6,9 @@
         <title>JSmote for WISEBED Nodes</title>
         <h:outputStylesheet library="css" name="bootstrap.css"/>
         <h:outputStylesheet library="css" name="style.css"/>
+        <h:outputScript library="js" name="lib/jquery-1.7.1.min.js" />
+        <h:outputScript library="js" name="wisebed.js" />
+        <h:outputScript library="js" name="main.js" />
     </h:head>
     <h:body>
         <!-- begin header -->
@@ -40,7 +43,7 @@
                         <label>offset (in minutes)</label>
                         <input type="number" value="0" min="0" max="60"/>        	
                         <hr/><p>No account yet? <a href="http://wisebed.eu/site/index.php/register/">Register here!</a></p>
-                        <h:commandButton action="#{user.reserve()}" value="reserve"/>
+                        <h:commandButton action="#{user.reserve()}" value="reserve" onclick="test();"/>
                     </h:form>
                 </div>
                 <div class="span6">
