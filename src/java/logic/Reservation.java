@@ -1,6 +1,5 @@
 package logic;
 
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
@@ -38,7 +37,12 @@ public class Reservation {
     private String password;
     private Integer offset;
     private Integer duration;
-    private String nodeURNs;
+    private List nodeURNs;
+    private String secretReservationKey;
+
+    public String getSecretReservationKey() {
+        return secretReservationKey;
+    }
     //TODO use variable endpoints
     String snaaEndpointURL = "http://wisebed.itm.uni-luebeck.de:8890/snaa";
     String rsEndpointURL = "http://wisebed.itm.uni-luebeck.de:8889/rs";
@@ -48,13 +52,18 @@ public class Reservation {
     SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
     public Reservation(String urnPrefix, String username, String password,
-            String nodeURNs) throws AuthenticationExceptionException, SNAAExceptionException,
+            String nodeURNs, Integer offset, Integer duration) throws AuthenticationExceptionException, SNAAExceptionException,
             ReservervationConflictExceptionException {
         
         this.urnPrefix = urnPrefix;
         this.username = username;
         this.password = password;
-        this.nodeURNs = nodeURNs;
+        
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URNs before splitting: {0}", nodeURNs);
+        
+        this.nodeURNs = splitURNs(nodeURNs);
+        this.duration = duration;
+        this.offset = offset;
 
         List credentialsList = new ArrayList();
 
@@ -71,18 +80,19 @@ public class Reservation {
         List secretAuthenticationKeys = authenticationSystem.authenticate(credentialsList);
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "Successfully authenticated!");
 
-        // retrieve the node URNs of all iSense nodes
-        String serializedWiseML = sessionManagement.getNetwork();
-        List nodeURNsToReserve;
-        if (nodeURNs == null || "".equals(nodeURNs)) {
-            nodeURNsToReserve = WiseMLHelper.getNodeUrns(serializedWiseML, new String[]{});
-        } else {
-            nodeURNsToReserve = splitURNs(nodeURNs);
-        }
-
+        // retrieve the node URNs
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO
+                , "URN 0: {0}", this.nodeURNs.get(0));
+        
+        List nodeURNsToReserve = this.nodeURNs;
+        
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO
+                , "URN 0: {0}", nodeURNsToReserve.get(0));
+        
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
-                "Retrieved the node URNs of all iSense nodes: {}", Joiner.on(", ").join(nodeURNsToReserve));
-        // create reservation request data to wb-reserve all iSense nodes for 10 minutes
+                "Retrieved this node URNs: {}", Joiner.on(", ").join(nodeURNsToReserve));
+        
+        // create reservation request data to wb-reserve all selected nodes for x minutes
         ConfidentialReservationData reservationData = BeanShellHelper.generateConfidentialReservationData(
                 nodeURNsToReserve,
                 new Date(System.currentTimeMillis() + (offset * 60 * 1000)), duration, TimeUnit.MINUTES,
@@ -103,8 +113,9 @@ public class Reservation {
 
             Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
                     BeanShellHelper.toString(secretReservationKeys));
+            secretReservationKey = BeanShellHelper.toString(secretReservationKeys);
         } catch (Exception e) {
-            System.err.println("" + e);
+            Logger.getLogger(Reservation.class.getName()).log(Level.SEVERE, null, e.toString());
         }
     }
 
@@ -114,15 +125,14 @@ public class Reservation {
      * @param nodeURNs
      * @return
      */
-    private ArrayList splitURNs(String nodeURNasString) {
-        ArrayList splittedURNs = Lists.newArrayList();
+    private List splitURNs(String nodeURNasString) {
 
         Pattern pattern = Pattern.compile(";");
         String[] URNs = pattern.split(nodeURNasString);
 
-        splittedURNs.addAll(Arrays.asList(URNs));
-
-        return splittedURNs;
+        List nodeUrnLIST = Arrays.asList(URNs);
+        
+        return nodeUrnLIST;
 
     }
 }

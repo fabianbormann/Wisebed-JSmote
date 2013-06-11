@@ -4,9 +4,13 @@
  */
 package model;
 
+import eu.wisebed.api.rs.ReservervationConflictExceptionException;
+import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.SNAAExceptionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
+import logic.Reservation;
 
 /**
  *
@@ -16,7 +20,43 @@ import javax.faces.bean.ManagedBean;
 public class User {
     private String username;
     private String password;
-    private String hash;     
+    private String urnPrefix;
+    private String nodeURNs;
+    private String hash;    
+    private Integer offset=0;
+    private Integer duration=5;
+
+    public String getUrnPrefix() {
+        return urnPrefix;
+    }
+
+    public void setUrnPrefix(String urnPrefix) {
+        this.urnPrefix = urnPrefix;
+    }
+
+    public String getNodeURNs() {
+        return nodeURNs;
+    }
+
+    public void setNodeURNs(String nodeURNs) {
+        this.nodeURNs = nodeURNs;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
 
     public String getUsername() {
         return username;
@@ -43,12 +83,27 @@ public class User {
     }
     
     public String reserve(){
-        Logger.getLogger(User.class.getName())
-                .log(Level.INFO, "try to reserve..");
-        
-        if(this.username.isEmpty())
-            return "index";
-        else
-            return "manage";
+        try {
+            Logger.getLogger(User.class.getName())
+                    .log(Level.INFO, "try to reserve..");
+            
+            //TODO variable urnPrefix
+            Reservation userReservation = new Reservation("urn:wisebed:uzl1:", 
+                    username+"@wisebed1.itm.uni-luebeck.de", 
+                    password, nodeURNs, offset, duration);
+            
+            if(this.username.isEmpty())
+                return "index";
+            else
+                this.hash = userReservation.getSecretReservationKey();
+                return "manage";
+        } catch (AuthenticationExceptionException e) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
+        } catch (SNAAExceptionException e) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
+        } catch (ReservervationConflictExceptionException e) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
+        }
+        return "index";
     }
 }
