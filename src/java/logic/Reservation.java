@@ -1,9 +1,6 @@
 package logic;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper;
 import eu.wisebed.api.rs.ConfidentialReservationData;
 import eu.wisebed.api.rs.RS;
@@ -16,7 +13,6 @@ import eu.wisebed.api.snaa.SNAAExceptionException;
 import eu.wisebed.testbed.api.rs.RSServiceHelper;
 import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 
 /**
  *
@@ -39,28 +36,27 @@ public class Reservation {
     private Integer duration;
     private List nodeURNs;
     private String secretReservationKey;
+    //TODO use variable endpoints
+    private String snaaEndpointURL = "http://wisebed.itm.uni-luebeck.de:8890/snaa";
+    private String rsEndpointURL = "http://wisebed.itm.uni-luebeck.de:8889/rs";
+    private String sessionManagementEndpointURL = "http://wisebed.itm.uni-luebeck.de:8888/sessions";
+    private SNAA authenticationSystem = SNAAServiceHelper.getSNAAService(snaaEndpointURL);
+    private RS reservationSystem = RSServiceHelper.getRSService(rsEndpointURL);
+    private SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
     public String getSecretReservationKey() {
         return secretReservationKey;
     }
-    //TODO use variable endpoints
-    String snaaEndpointURL = "http://wisebed.itm.uni-luebeck.de:8890/snaa";
-    String rsEndpointURL = "http://wisebed.itm.uni-luebeck.de:8889/rs";
-    String sessionManagementEndpointURL = "http://wisebed.itm.uni-luebeck.de:8888/sessions";
-    SNAA authenticationSystem = SNAAServiceHelper.getSNAAService(snaaEndpointURL);
-    RS reservationSystem = RSServiceHelper.getRSService(rsEndpointURL);
-    SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
 
-    public Reservation(String urnPrefix, String username, String password,
+    public void reserveNodes(String urnPrefix, String username, String password,
             String nodeURNs, Integer offset, Integer duration) throws AuthenticationExceptionException, SNAAExceptionException,
             ReservervationConflictExceptionException {
-        
         this.urnPrefix = urnPrefix;
         this.username = username;
         this.password = password;
-        
+
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URNs before splitting: {0}", nodeURNs);
-        
+
         this.nodeURNs = splitURNs(nodeURNs);
         this.duration = duration;
         this.offset = offset;
@@ -81,17 +77,15 @@ public class Reservation {
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "Successfully authenticated!");
 
         // retrieve the node URNs
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO
-                , "URN 0: {0}", this.nodeURNs.get(0));
-        
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URN 0: {0}", this.nodeURNs.get(0));
+
         List nodeURNsToReserve = this.nodeURNs;
-        
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO
-                , "URN 0: {0}", nodeURNsToReserve.get(0));
-        
+
+        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URN 0: {0}", nodeURNsToReserve.get(0));
+
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
                 "Retrieved this node URNs: {}", Joiner.on(", ").join(nodeURNsToReserve));
-        
+
         // create reservation request data to wb-reserve all selected nodes for x minutes
         ConfidentialReservationData reservationData = BeanShellHelper.generateConfidentialReservationData(
                 nodeURNsToReserve,
@@ -131,8 +125,18 @@ public class Reservation {
         String[] URNs = pattern.split(nodeURNasString);
 
         List nodeUrnLIST = Arrays.asList(URNs);
-        
+
         return nodeUrnLIST;
 
+    }
+    
+    /**
+     * @return reserved Nodes
+     */
+    public ArrayList getReservedNodes() {
+        ArrayList reservedNodes = new ArrayList();
+        reservedNodes.addAll(nodeURNs);
+        
+        return reservedNodes;
     }
 }

@@ -1,2 +1,4 @@
 body {width: 70%; margin: 0 auto;}
-.jsArea {width: 100%; min-height: 100px;}
+
+.jsArea {width: 100%; max-width: 100%;  min-height: 100px;}
+.flashArrayArea {width: 100%; max-width: 100%; min-height: 50px;}

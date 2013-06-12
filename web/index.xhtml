@@ -28,7 +28,11 @@
                 <div class="span6">
                     <h:form>
                         <label>Username</label>
-                        <h:inputText class="span3" value="#{user.username}"/>
+                        <h:inputText id="username" class="span3" value="#{user.username}"
+                                     required="true"
+                                     requiredMessage="Please enter your username."
+                                     />
+                        <h:message for="username" style="color:red"/>
                         <select class="span3">
                             <option>@wisebed1.itm.uni-luebeck.de</option>
                         </select>

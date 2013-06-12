@@ -10,6 +10,8 @@ import eu.wisebed.api.snaa.SNAAExceptionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import logic.Remote;
 import logic.Reservation;
 
 /**
@@ -17,15 +19,20 @@ import logic.Reservation;
  * @author Fabian
  */
 @ManagedBean
+@SessionScoped
 public class User {
+    
+    Reservation reservation = new Reservation();
+    Remote remote;
+    
     private String username;
     private String password;
     private String urnPrefix;
     private String nodeURNs;
-    private String hash;    
+    private String secretReservationKey;    
     private Integer offset=0;
     private Integer duration=5;
-
+    
     public String getUrnPrefix() {
         return urnPrefix;
     }
@@ -74,29 +81,30 @@ public class User {
         this.password = password;
     }
 
-    public String getHash() {
-        return hash;
+    public String getSecretReservationKey() {
+        return secretReservationKey;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
+    public void setSecretReservationKey(String secretReservationKey) {
+        this.secretReservationKey = secretReservationKey;
     }
     
     public String reserve(){
         try {
             Logger.getLogger(User.class.getName())
                     .log(Level.INFO, "try to reserve..");
-            
+             
             //TODO variable urnPrefix
-            Reservation userReservation = new Reservation("urn:wisebed:uzl1:", 
+            this.reservation.reserveNodes("urn:wisebed:uzl1:", 
                     username+"@wisebed1.itm.uni-luebeck.de", 
                     password, nodeURNs, offset, duration);
             
-            if(this.username.isEmpty())
-                return "index";
-            else
-                this.hash = userReservation.getSecretReservationKey();
-                return "manage";
+            this.secretReservationKey = this.reservation.getSecretReservationKey();
+            
+            this.remote = new Remote(reservation.getReservedNodes());
+            
+            return "manage";
+               
         } catch (AuthenticationExceptionException e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
         } catch (SNAAExceptionException e) {
@@ -104,6 +112,16 @@ public class User {
         } catch (ReservervationConflictExceptionException e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
         }
+        
         return "index";
     }
+
+    public Remote getRemote() {
+        return remote;
+    }
+
+    public void setRemote(Remote remote) {
+        this.remote = remote;
+    }
+    
 }
