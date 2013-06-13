@@ -1,56 +1,34 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html">
-    <h:head>
-        <title>JSmote for WISEBED Nodes</title>
-        <h:outputStylesheet library="css" name="bootstrap.css"/>
-        <h:outputStylesheet library="css" name="style.css"/>
-    </h:head>
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    
     <h:body> 
+        <ui:composition template="WEB-INF/templates/template.xhtml">
+            <ui:define name="content">
+            <!-- begin content -->
+            <div class="container">
+                <div class="row">
+                    <div class="span12">
+                        <div class="alert alert-success">
+                            <p>Hello <b>#{user.username}</b> now you are logged in! Your reservation key is 
+                                <b>#{user.secretReservationKey}</b>.</p>
+                        </div>
 
-        <!-- begin header -->
-        <div class="container">
-            <div class="row">
-                <div class="span12">
-                    <div class="page-header">
-                        <h1>JSmote for WISEBED Nodes</h1>
+                        <h:form>
+                            <label>Run code on this nodes:</label>
+                            <h:inputTextarea styleClass="flashArrayArea" value="#{user.remote.flashArray}"></h:inputTextarea><br />
+                            <label>Javascriptcode:</label>
+                            <h:inputTextarea styleClass="jsArea"></h:inputTextarea><br />
+                            <h:commandButton action="welcome" value="run"/>
+                        </h:form>
+
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- begin content -->
-        <div class="container">
-            <div class="row">
-                <div class="span12">
-                    <div class="alert alert-success">
-                        <p>Hello <b>#{user.username}</b> now you are logged in! Your reservation key is 
-                            <b>#{user.secretReservationKey}</b>.</p>
-                    </div>
-                             
-                    <h:form>
-                        <label>Run code on this nodes:</label>
-                        <h:inputTextarea styleClass="flashArrayArea" value="#{user.remote.flashArray}"></h:inputTextarea><br />
-                        <label>Javascriptcode:</label>
-                        <h:inputTextarea styleClass="jsArea"></h:inputTextarea><br />
-                        <h:commandButton action="welcome" value="run"/>
-                    </h:form>
-                    
-                </div>
-            </div>
-        </div>
-        
-        <!-- begin footer -->
-        <div class="container">
-            <div class="row">
-                <div class="span12">
-                    <hr />
-                    Open Source project by Fabian Bormann GSoC 2013
-                </div>
-            </div>
-        </div>
-       
+            </ui:define>
+        </ui:composition>
     </h:body>
 </html>
 
