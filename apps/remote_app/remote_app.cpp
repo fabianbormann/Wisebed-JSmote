@@ -6,7 +6,7 @@
  */
 
 #include "external_interface/external_interface.h"
-//#include "algorithms/routing/tree/tree_routing.h"
+#include "algorithms/routing/tree/tree_routing.h"
 #include "util/pstl/static_string.h"
 #include "algorithms/protocols/coap/coap.h"
 
@@ -29,9 +29,11 @@ class RemoteApplication
          debug_->debug( "Remote Application booting!\n" );
 
          radio_->enable_radio();
-
+         debug_->debug( "Everything is fine -1-!\n" );
          rand_->srand(radio_->id());
-         rand = (uint16_t) rand_->operator()(65536 / 2);
+         debug_->debug( "Everything is fine -2-!\n" );
+         rand = (uint16_t) rand_->operator()(255);
+         debug_->debug( "Everything is fine -3-!\n" );
          debug_->debug("Remote App %x", radio_->id());
 
          add_resources();
@@ -45,9 +47,9 @@ class RemoteApplication
       }
 
       void add_resources(){
-    	  resource_t core_resource("alert", GET | POST, true, 180, TEXT_PLAIN);
-    	  core_resource.reg_callback<RemoteApplication, &RemoteApplication::alert > (this);
-    	  coap_.add_resource(&core_resource);
+          resource_t new_resource("alert", GET, true, 120, TEXT_PLAIN);
+          new_resource.reg_callback<RemoteApplication, &RemoteApplication::alert > (this);
+          coap_.add_resource(&new_resource);
       }
 
       void broadcast_loop(void*){
