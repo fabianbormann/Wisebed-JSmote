@@ -102,6 +102,9 @@ public class User {
             this.secretReservationKey = this.reservation.getSecretReservationKey();
             
             this.remote = new Remote(reservation.getReservedNodes());
+           
+            this.remote.setSecretReservationKey(this.secretReservationKey);
+            this.remote.flashRemoteImage();
             
             return "manage";
                
