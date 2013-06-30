@@ -21,7 +21,7 @@
                             <h:inputTextarea styleClass="flashArrayArea" value="#{user.remote.flashArray}"></h:inputTextarea><br />
                             <label>Javascriptcode:</label>
                             <h:inputTextarea styleClass="jsArea"></h:inputTextarea><br />
-                            <h:commandButton action="welcome" value="run"/>
+                            <h:commandButton action="#{user.startFlashing()}" value="run"/>
                         </h:form>
 
                     </div>

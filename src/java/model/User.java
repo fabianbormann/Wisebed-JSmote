@@ -7,12 +7,19 @@ package model;
 import eu.wisebed.api.rs.ReservervationConflictExceptionException;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
 import eu.wisebed.api.snaa.SNAAExceptionException;
+import java.security.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import logic.Remote;
 import logic.Reservation;
+import service.SessionManager;
+import session.SessionUser;
 
 /**
  *
@@ -21,18 +28,17 @@ import logic.Reservation;
 @ManagedBean
 @SessionScoped
 public class User {
-    
+
     Reservation reservation = new Reservation();
     Remote remote;
-    
     private String username;
     private String password;
     private String urnPrefix;
     private String nodeURNs;
-    private String secretReservationKey;    
-    private Integer offset=0;
-    private Integer duration=5;
-    
+    private String secretReservationKey;
+    private Integer offset = 0;
+    private Integer duration = 5;
+
     public String getUrnPrefix() {
         return urnPrefix;
     }
@@ -88,35 +94,69 @@ public class User {
     public void setSecretReservationKey(String secretReservationKey) {
         this.secretReservationKey = secretReservationKey;
     }
-    
-    public String reserve(){
+
+    public String reserve() {
         try {
-            Logger.getLogger(User.class.getName())
-                    .log(Level.INFO, "try to reserve..");
-             
-            //TODO variable urnPrefix
-            this.reservation.reserveNodes("urn:wisebed:uzl1:", 
-                    username+"@wisebed1.itm.uni-luebeck.de", 
-                    password, nodeURNs, offset, duration);
-            
-            this.secretReservationKey = this.reservation.getSecretReservationKey();
-            
-            this.remote = new Remote(reservation.getReservedNodes());
-           
-            this.remote.setSecretReservationKey(this.secretReservationKey);
-            this.remote.flashRemoteImage();
-            
-            return "manage";
-               
-        } catch (AuthenticationExceptionException e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
-        } catch (SNAAExceptionException e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
-        } catch (ReservervationConflictExceptionException e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
-        }
+        Logger.getLogger(User.class.getName())
+                .log(Level.INFO, "try to reserve..");
+
+        //TODO variable urnPrefix
+        this.reservation.reserveNodes("urn:wisebed:uzl1:",
+                username + "@wisebed1.itm.uni-luebeck.de",
+                password, nodeURNs, offset, duration);
+
+        this.secretReservationKey = this.reservation.getSecretReservationKey();
+
+        this.remote = new Remote(reservation.getReservedNodes());
+
+        this.remote.setSecretReservationKey(this.secretReservationKey);
+
+        //TODO flashing
+        //this.remote.flashRemoteImage();
         
-        return "index";
+        if(this.secretReservationKey.isEmpty()){
+            return "index?error=authentication_error";
+        }
+
+        java.util.Date date = new java.util.Date();
+
+        String experiment_name = "001_experiment" + date.toString();
+        Pattern pattern = Pattern.compile(";");
+        String[] URNs = pattern.split(this.nodeURNs);
+        List nodeUrnList = Arrays.asList(URNs);
+        ArrayList<String> UrnArrayList = new ArrayList<String>();
+        UrnArrayList.addAll(nodeUrnList);
+
+        Experiment experiment = new Experiment(experiment_name, UrnArrayList, date);
+
+        SessionManager.saveExperiment(experiment);
+
+        SessionManager.saveExperiment(experiment);
+
+        if (SessionManager.getUser(username, password) == null) {
+            SessionManager.createUser(username, password, experiment_name);
+        } else {
+            SessionUser user = SessionManager.getUser(username, password);
+            SessionManager.updateUserExperiments(experiment, user);
+        }
+
+        return "manage";
+
+            } catch (AuthenticationExceptionException e) {
+         Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
+         } catch (SNAAExceptionException e) {
+         Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
+         } catch (ReservervationConflictExceptionException e) {
+         Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
+         }
+        
+         return "index";
+    
+    }
+
+    public String startFlashing() {
+        this.remote.flashRemoteImage();
+        return "manage";
     }
 
     public Remote getRemote() {
@@ -126,5 +166,4 @@ public class User {
     public void setRemote(Remote remote) {
         this.remote = remote;
     }
-    
 }

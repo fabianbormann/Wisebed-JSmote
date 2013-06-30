@@ -21,12 +21,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.faces.bean.SessionScoped;
 
 
 /**
  *
  * @author Fabian
  */
+@SessionScoped
 public class Reservation {
 
     private String urnPrefix;

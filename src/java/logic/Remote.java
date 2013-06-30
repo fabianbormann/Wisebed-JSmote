@@ -19,36 +19,18 @@ import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.EventListener;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.SessionCookieConfig;
-import javax.servlet.SessionTrackingMode;
-import javax.servlet.descriptor.JspConfigDescriptor;
-
 /**
  *
  * @author Fabian
@@ -57,7 +39,7 @@ import javax.servlet.descriptor.JspConfigDescriptor;
 @SessionScoped
 public class Remote {
 
-    private final String REMOTE_IMAGE_PATH = "WEB-INF/apps/remote_app/remote_app.bin";
+    private final String REMOTE_IMAGE_PATH = "C:\\Users\\Fabian\\GSoC\\Wisebed-JSmote\\build\\web\\WEB-INF\\apps\\remote_app\\remote_app.bin";
     
     private String secretReservationKey;
     private ArrayList<String> nodeArray = new ArrayList<String>();
@@ -95,6 +77,8 @@ public class Remote {
     public String getFlashArray() {
         return nodeArray.toString();
     }
+    
+    public void setFlashArray(String nodeArray) {}
 
     public void setSecretReservationKey(String secretReservationKey) {
         this.secretReservationKey = secretReservationKey;
