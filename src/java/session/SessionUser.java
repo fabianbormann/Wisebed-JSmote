@@ -33,6 +33,12 @@ public class SessionUser implements Serializable{
         this.experiments.add(experiment);
     }
     
+    public SessionUser(String username, String password, ArrayList<String> experiments){
+        this.name = username;
+        this.password = password;
+        this.experiments = experiments;
+    }
+    
     public String getName() {
         return name;
     }

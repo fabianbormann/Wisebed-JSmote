@@ -18,24 +18,22 @@ import javax.persistence.Temporal;
  */
 @Entity
 public class SessionExperiment implements Serializable{
+    private static final long serialVersionUID = 1L;
+    
     @Id @GeneratedValue
-    private Long id;
+    private long id;
     private String name;
     private ArrayList nodes;
-    
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date datetime;
 
-    public SessionExperiment() {}
-   
-    public SessionExperiment(String name, ArrayList nodes, Date datetime){
+    public SessionExperiment() {
+    }
+    
+    public SessionExperiment(String name, ArrayList nodes, Date datetime) {
         this.name = name;
         this.nodes = nodes;
         this.datetime = datetime;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getName() {

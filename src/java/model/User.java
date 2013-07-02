@@ -14,11 +14,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.persistence.metamodel.StaticMetamodel;
 import logic.Remote;
 import logic.Reservation;
-import service.SessionManager;
+import service.ServiceManager;
 import session.SessionUser;
 
 /**
@@ -29,6 +31,8 @@ import session.SessionUser;
 @SessionScoped
 public class User {
 
+    ServiceManager session = new ServiceManager();
+    
     Reservation reservation = new Reservation();
     Remote remote;
     private String username;
@@ -120,25 +124,15 @@ public class User {
 
         java.util.Date date = new java.util.Date();
 
-        String experiment_name = "001_experiment" + date.toString();
+        String experimentName = "001_experiment" + date.toString();
         Pattern pattern = Pattern.compile(";");
         String[] URNs = pattern.split(this.nodeURNs);
         List nodeUrnList = Arrays.asList(URNs);
         ArrayList<String> UrnArrayList = new ArrayList<String>();
         UrnArrayList.addAll(nodeUrnList);
 
-        Experiment experiment = new Experiment(experiment_name, UrnArrayList, date);
-
-        SessionManager.saveExperiment(experiment);
-
-        SessionManager.saveExperiment(experiment);
-
-        if (SessionManager.getUser(username, password) == null) {
-            SessionManager.createUser(username, password, experiment_name);
-        } else {
-            SessionUser user = SessionManager.getUser(username, password);
-            SessionManager.updateUserExperiments(experiment, user);
-        }
+        session.createExperiment(experimentName, UrnArrayList, date);
+        session.createUser(this.username, this.password, experimentName);
 
         return "manage";
 
@@ -151,7 +145,6 @@ public class User {
          }
         
          return "index";
-    
     }
 
     public String startFlashing() {
