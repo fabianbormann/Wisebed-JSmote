@@ -4,11 +4,11 @@
  */
 package service;
 
+import exceptions.DatabseUserNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.faces.bean.ManagedBean;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -20,10 +20,10 @@ import session.SessionUser;
  *
  * @author Fabian
  */
-@ManagedBean
 public class ServiceManager implements Serializable{
 
-    private static final String PERSISTENCE_UNIT_NAME = "HelloJPAPU";
+    private static final String PERSISTENCE_UNIT_NAME = "JSmotePU";
+    
     private static EntityManagerFactory factory;
     private EntityManager em;
 
@@ -33,13 +33,13 @@ public class ServiceManager implements Serializable{
     }
       
     /**
-     * Inserts a new user in the database
+     * Inserts a existing SessionUser in the database and add it's experiment
      * @param username
      * @param password
      * @param experiment 
      */
-    public void createUser(String username, String password, String experiment){
-        SessionUser user = new SessionUser(username, password, experiment);
+    public void createUser(SessionUser user, SessionExperiment experiment){
+        user.addExperiment(experiment);
         
         em.getTransaction().begin();
         em.persist(user);
@@ -50,7 +50,7 @@ public class ServiceManager implements Serializable{
      * Returns a list with all user in the database
      * @return 
      */
-    private List getAllUser(){
+    public List getAllUser(){
         TypedQuery<SessionUser> query = em.createQuery("select user from SessionUser user", SessionUser.class);
         return query.getResultList();
     }
@@ -61,8 +61,8 @@ public class ServiceManager implements Serializable{
      * @param nodes
      * @param datetime 
      */
-    public void createExperiment(String name, ArrayList nodes, Date datetime){
-        SessionExperiment experiment = new SessionExperiment(name, nodes, datetime);
+    public void createExperiment(String name, ArrayList nodes, Date datetime, SessionUser sessionUser){
+        SessionExperiment experiment = new SessionExperiment(name, nodes, datetime, sessionUser);
         
         em.getTransaction().begin();
         em.persist(experiment);
@@ -76,7 +76,7 @@ public class ServiceManager implements Serializable{
     public void createExperiment(SessionExperiment experiment){
         
         SessionExperiment sessionExperiment = new SessionExperiment
-                (experiment.getName(), experiment.getNodes(), experiment.getDatetime());
+                (experiment.getName(), experiment.getNodes(), experiment.getDatetime(), experiment.getSessionUser());
         
         em.getTransaction().begin();
         em.persist(sessionExperiment);
@@ -91,6 +91,24 @@ public class ServiceManager implements Serializable{
         TypedQuery<SessionExperiment> query = 
                 em.createQuery("select experiment from SessionExperiment experiment", SessionExperiment.class);
         return query.getResultList();    
+    } 
+
+    public void updateUser(SessionUser sessionUser) {
+        em.merge(sessionUser);
     }
     
+    public void removeUser(SessionUser sessionUser) throws DatabseUserNotFoundException {
+        String username = sessionUser.getName();
+        
+        TypedQuery<SessionUser> query = em.createQuery("select user from SessionUser user WHERE user.name = :username", SessionUser.class)
+                .setParameter("username", username);
+        if(!query.getResultList().isEmpty()){
+            em.getTransaction().begin();
+            em.remove(query.getResultList().get(0));
+            em.getTransaction().commit();
+        }
+        else{
+            throw new DatabseUserNotFoundException();
+        }
+    }
 }

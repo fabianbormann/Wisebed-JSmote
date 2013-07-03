@@ -6,11 +6,11 @@ package service;
 
 import java.util.ArrayList;
 import java.util.List;
+import session.SessionExperiment;
+import session.SessionUser;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import session.SessionExperiment;
-import session.SessionUser;
 
 /**
  *
@@ -18,7 +18,8 @@ import session.SessionUser;
  */
 public class ExperimentService {
     
-    private static final String PERSISTENCE_UNIT_NAME = "HelloJPAPU";
+    private static final String PERSISTENCE_UNIT_NAME = "JSmotePU";
+    
     private static EntityManagerFactory factory;
     private EntityManager em;
 
@@ -28,7 +29,7 @@ public class ExperimentService {
     }
     
     public void updateUserExperiments(SessionExperiment experiment, SessionUser user){
-        ArrayList experiments = user.getExperiments();
+        List experiments = user.getExperiments();
         experiments.add(experiment);
         
         user.setExperiments(experiments);

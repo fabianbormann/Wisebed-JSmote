@@ -6,9 +6,13 @@ package session;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -17,23 +21,34 @@ import javax.persistence.Id;
 @Entity
 public class SessionUser implements Serializable{
     private static final long serialVersionUID = 1L;
-    
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     private String name;
     private String password;
-    private ArrayList<String> experiments = new ArrayList<String>();
+    
+    @OneToMany(mappedBy = "sessionUser", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<SessionExperiment> experiments = new ArrayList<SessionExperiment>();
 
     public SessionUser(){}
     
-    public SessionUser(String username, String password, String experiment){
+    public SessionUser(String username, String password, SessionExperiment experiment){
         this.name = username;
         this.password = password;
         this.experiments.add(experiment);
     }
     
-    public SessionUser(String username, String password, ArrayList<String> experiments){
+    public SessionUser(String username, String password){
+        this.name = username;
+        this.password = password;
+    }
+    
+    public void addExperiment(SessionExperiment sessionExperiment){
+        this.experiments.add(sessionExperiment);
+    }
+    
+    public SessionUser(String username, String password, ArrayList<SessionExperiment> experiments){
         this.name = username;
         this.password = password;
         this.experiments = experiments;
@@ -55,11 +70,11 @@ public class SessionUser implements Serializable{
         this.password = password;
     }
 
-    public ArrayList<String> getExperiments() {
+    public List<SessionExperiment> getExperiments() {
         return experiments;
     }
 
-    public void setExperiments(ArrayList<String> experiments) {
+    public void setExperiments(List<SessionExperiment> experiments) {
         this.experiments = experiments;
     }
     
