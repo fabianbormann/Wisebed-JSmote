@@ -123,7 +123,7 @@ public class Reservation {
      */
     private List splitURNs(String nodeURNasString) {
 
-        Pattern pattern = Pattern.compile(";");
+        Pattern pattern = Pattern.compile(",");
         String[] URNs = pattern.split(nodeURNasString);
 
         List nodeUrnLIST = Arrays.asList(URNs);

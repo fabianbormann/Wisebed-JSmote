@@ -27,32 +27,32 @@ import session.SessionUser;
  *
  * @author Fabian
  */
-public class UserTest {
+public class EventControllerTest {
     
     ServiceManager session;
     Reservation reservation;
     UserService userService;
-    String username;
-    String password;
-    ArrayList<String> nodeURNs;
     ArrayList<SessionUser> testUsers;
+    ArrayList<String> nodeURNs;
     String experimentName;
     Date date;
+    User user;
     
     @Before
     public void setUp() {
         this.session = new ServiceManager(); 
         this.userService = new UserService();
         this.reservation = new Reservation();
-        this.username = "Fabian";
-        this.password = "Geheim";
+        this.user = new User();
+        user.setUsername("Fabian");
+        user.setPassword("Geheim");
         String nodeURNText = "urn:wisebed:uzl1:0x2001;urn:wisebed:uzl1:0x2004"
-                + ";urn:wisebed:uzl1:0x2005;urn:wisebed:uzl1:0x2008";
+                + ",urn:wisebed:uzl1:0x2005,urn:wisebed:uzl1:0x2008";
         
         this.date = new java.util.Date();
         
         this.experimentName = "001_experiment" + this.date.toString();
-        Pattern pattern = Pattern.compile(";");
+        Pattern pattern = Pattern.compile(",");
         String[] URNs = pattern.split(nodeURNText);
         List nodeUrnList = Arrays.asList(URNs);
         
@@ -64,18 +64,18 @@ public class UserTest {
     
     @After
     public void tearDown() {
-        for(SessionUser user : this.testUsers){
+        for(SessionUser sessionUser : this.testUsers){
             try { 
-                session.removeUser(user);
+                session.removeUser(sessionUser);
             } catch (DatabseUserNotFoundException e) {
-                Logger.getLogger(UserTest.class.getName()).log(Level.SEVERE, e.toString());
+                Logger.getLogger(EventControllerTest.class.getName()).log(Level.SEVERE, e.toString());
             }
         }  
     }
         
     @Test
     public void testStoreNewSession() {
-        SessionUser sessionUser = new SessionUser(this.username, this.password);
+        SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
         SessionExperiment sessionExperiment = new SessionExperiment(this.experimentName, this.nodeURNs, this.date, sessionUser);
         
         session.createExperiment(sessionExperiment);
@@ -93,7 +93,7 @@ public class UserTest {
         assertEquals(this.nodeURNs, currentExperiment.getNodes());
         assertEquals(date, currentExperiment.getDatetime());
         
-        testUsers.add(currentUser);
+        this.testUsers.add(currentUser);
     }
     
     @Test
@@ -152,9 +152,9 @@ public class UserTest {
         SessionUser sessionUser3 = new SessionUser("TestUser2", "Test2");
         session.createUser(sessionUser3, new SessionExperiment());
         
-        testUsers.add(sessionUser1);
-        testUsers.add(sessionUser2);
-        testUsers.add(sessionUser3);
+        this.testUsers.add(sessionUser1);
+        this.testUsers.add(sessionUser2);
+        this.testUsers.add(sessionUser3);
     }
     
 }
