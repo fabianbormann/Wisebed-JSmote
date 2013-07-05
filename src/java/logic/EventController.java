@@ -39,6 +39,10 @@ public class EventController {
     @EJB
     User user;
     Remote remote;
+
+    public EventController(User user) {
+        this.user = user;
+    }
    
     public String reserve() {
         try {

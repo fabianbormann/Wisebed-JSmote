@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package model;
+package logic;
 
 import exceptions.DatabseUserDuplicationException;
 import exceptions.DatabseUserNotFoundException;
@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import logic.Reservation;
+import model.User;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -155,6 +156,12 @@ public class EventControllerTest {
         this.testUsers.add(sessionUser1);
         this.testUsers.add(sessionUser2);
         this.testUsers.add(sessionUser3);
+    }
+    
+    @Test
+    public void testUserExists(){
+        createTestUsers();
+        
     }
     
 }

@@ -7,6 +7,7 @@ package model;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.inject.Singleton;
+import logic.EventController;
 
 /**
  *
@@ -24,6 +25,8 @@ public class User {
     private String secretReservationKey;
     private Integer offset = 0;
     private Integer duration = 5;
+    
+    private EventController controller = new EventController(this);
 
     public String getUrnPrefix() {
         return urnPrefix;
@@ -79,5 +82,13 @@ public class User {
 
     public void setSecretReservationKey(String secretReservationKey) {
         this.secretReservationKey = secretReservationKey;
+    }
+    
+    public String doReserve(){
+        return controller.reserve();
+    }
+    
+    public String doFlash(){
+        return controller.startFlashing();
     }
 }
