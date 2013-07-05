@@ -15,25 +15,25 @@
     </h:head>
 
     <h:body>
-
-        <div id="top" class="top">
-            <ui:insert name="top">
-                <ui:include src="header.xhtml"/>
-            </ui:insert>
-        </div>
-
-        <div id="content" class="center_content">
-            <ui:insert name="content"></ui:insert>
-        </div>
-
-        <div id="bottom">
-            <ui:insert name="bottom">
+        <div id="wrapper">
+            <div id="top" class="top">
                 <ui:insert name="top">
-                    <ui:include src="footer.xhtml"/>
+                    <ui:include src="header.xhtml"/>
                 </ui:insert>
-            </ui:insert>
-        </div>
+            </div>
 
+            <div id="content" class="center_content">
+                <ui:insert name="content"></ui:insert>
+            </div>
+
+            <div id="bottom">
+                <ui:insert name="bottom">
+                    <ui:insert name="top">
+                        <ui:include src="footer.xhtml"/>
+                    </ui:insert>
+                </ui:insert>
+            </div>
+        </div>
     </h:body>
 
 </html>
