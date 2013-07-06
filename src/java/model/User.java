@@ -6,7 +6,6 @@ package model;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.inject.Singleton;
 import logic.EventController;
 
 /**
@@ -15,7 +14,6 @@ import logic.EventController;
  */
 @ManagedBean
 @SessionScoped
-@Singleton
 public class User {
 
     private String username;

@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:body>
+        <ui:composition template="WEB-INF/templates/loggedUserTemplate.xhtml">
+            <ui:define name="content">
+                <!-- begin content -->
+                <h1>Previous Experiments</h1>
+                <br />
+                <p>Click on a experiment in the table to see more information like
+                    your source code and the Node URNs.</p>
+                <br />
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Reserved Nodes</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>My first Experiment</td>
+                            <td>29</td>
+                            <td>3/27/2013 08:27</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>Experimentation is cool</td>
+                            <td>2</td>
+                            <td>4/12/2013 23:12</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>Boring</td>
+                            <td>13</td>
+                            <td>4/15/2013 13:37</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

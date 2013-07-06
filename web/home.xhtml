@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:body>
+        <ui:composition template="WEB-INF/templates/loggedUserTemplate.xhtml">
+            <ui:define name="content">
+                <!-- begin content -->
+                <div class="jumbotron">
+                    <h1>Hey #{user.username}!</h1>
+                    <p class="lead">Start a new wisebed experiment! Take a look at the examples, manage or share
+                        your previous experiments. You can start a new experiment on the <h:link value="Experiments page" outcome="experiments" /> or by clicking this button.</p>
+                    <a class="btn btn-large btn-success" href="#">Start a new experiment</a>
+                </div>
+                <br />
+                <hr />
+                <div class="row-fluid">
+                    <div class="span6">
+                        <h2>About <h:outputLink value="http://wisebed.eu/site/"><h:outputText value="Wisebed"/></h:outputLink></h2>
+                        <p>The aim of this project is to provide a multi-level infrastracture of interconnected testbeds of largescale wireless sensor networks for research purposes, pursuing an interdisciplinary approach that integrates the aspects of hardware, software, algorithms, and data.</p>
+                        <p><h:outputLink styleClass="btn" value="http://wisebed.eu/site/about-wisebed/project-description-and-goals/"><h:outputText value="View details"/></h:outputLink></p>
+                    </div>
+                    <div class="span6">
+                        <h2>What is the Wiselib?</h2>
+                        <p>The Wiselib is an algorithms library for networked embedded devices. It contains various algorithm classes (for instance, localization or routing) that can be compiled for several platforms such as iSense or Contiki, or the sensor network simulator Shawn.</p>
+                        <p><h:outputLink styleClass="btn" value="https://github.com/ibr-alg/wiselib/wiki"><h:outputText value="View details"/></h:outputLink></p>
+                    </div>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
