@@ -23,6 +23,7 @@ public class User {
     private String secretReservationKey;
     private Integer offset = 0;
     private Integer duration = 5;
+    private boolean experimentLogin = false;
     
     private EventController controller = new EventController(this);
 
@@ -82,11 +83,20 @@ public class User {
         this.secretReservationKey = secretReservationKey;
     }
     
-    public String doReserve(){
-        return controller.reserve();
+    public String doLogin(){
+        return controller.startLogin();
     }
-    
+        
     public String doFlash(){
         return controller.startFlashing();
     }
+
+    public Boolean getExperimentLogin() {
+        return experimentLogin;
+    }
+    
+    public void setExperimentLogin(Boolean experimentLogin) {
+        this.experimentLogin = experimentLogin;
+    }
+    
 }

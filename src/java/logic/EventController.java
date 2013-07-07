@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpSession;
 import model.User;
 import service.ServiceManager;
 import service.UserService;
@@ -36,6 +38,8 @@ public class EventController {
     ServiceManager session = new ServiceManager();
     UserService userService = new UserService();
     Reservation reservation = new Reservation();
+    FacesContext context = FacesContext.getCurrentInstance();
+    HttpSession httpSession = (HttpSession)context.getExternalContext().getSession(true); 
     @EJB
     User user;
     Remote remote;
@@ -79,6 +83,8 @@ public class EventController {
                 storeNewSession(experimentName, UrnArrayList, date);
             }
 
+            httpSession.setAttribute("authenticated", this.user.hashCode());
+            
             return "manage";
 
         } catch (AuthenticationExceptionException e) {
@@ -128,5 +134,29 @@ public class EventController {
 
     public void setRemote(Remote remote) {
         this.remote = remote;
+    }
+
+    public String startLogin() {
+        if(user.getExperimentLogin() == true){
+            return this.reserve();
+        }
+        else{    
+            return userLoginPossible();
+        }
+    }
+
+    private String userLoginPossible() {
+        try {
+            SessionUser sessionUser = userService.getSessionUser(user.getUsername());
+            if(sessionUser.getPassword().equals(user.getPassword())){
+                httpSession.setAttribute("authenticated", this.user.hashCode());
+                return "home";
+            }
+            else
+                return "index";
+        } catch (Exception e) {
+            Logger.getLogger(EventController.class.getName()).log(Level.SEVERE, e.toString());
+            return "index";
+        }
     }
 }

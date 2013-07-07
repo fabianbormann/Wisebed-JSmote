@@ -116,7 +116,7 @@ public class Reservation {
     }
 
     /**
-     * Splitt the URNs by ";" as delimiter
+     * Splitt the URNs by "," as delimiter
      *
      * @param nodeURNs
      * @return

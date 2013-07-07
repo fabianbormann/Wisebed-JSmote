@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import logic.Reservation;
 import model.User;
 import org.junit.After;
 import org.junit.Test;

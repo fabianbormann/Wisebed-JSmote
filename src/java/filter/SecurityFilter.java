@@ -25,27 +25,27 @@ public class SecurityFilter implements Filter {
 
     private final String[] forbiddenSites = {"home.xhtml","share.xhtml",
         "experiments.xhtml", "settings.xhtml"};
-    
-    private final String[] forbiddenSites_debug = {"nothing.xhtml"};
-    
+        
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse serveltResponse, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpSession session = request.getSession(true);
         
         if (session.getAttribute("authenticated") != null || isNotForbidden(request.getRequestURI())) {
+            if(session.getAttribute("authenticated") != null && request.getRequestURI().contains("index.xhtml")){
+                HttpServletResponse response = (HttpServletResponse) serveltResponse;
+                response.sendRedirect(request.getContextPath() + "/faces/home.xhtml");             
+            }
             chain.doFilter(servletRequest, serveltResponse);
-            Logger.getLogger(SecurityFilter.class.getName()).log(Level.INFO, "ok...");
         } else {
             HttpServletResponse response = (HttpServletResponse) serveltResponse;
             response.sendRedirect(request.getContextPath() + "/faces/index.xhtml");
-            Logger.getLogger(SecurityFilter.class.getName()).log(Level.INFO, "nicht ok");
         }
     }
 
     private boolean isNotForbidden(String URI){
         
-        for(String site : forbiddenSites_debug){
+        for(String site : forbiddenSites){
             if(URI.contains(site))
                 return false;
         }

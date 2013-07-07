@@ -40,7 +40,7 @@ public class UserService {
         .setParameter("name", username)
         .setParameter("password", password);
          
-        return query.getResultList().isEmpty();       
+        return !(query.getResultList().isEmpty());       
     }
     
     public SessionUser getSessionUser(String username) throws DatabseUserDuplicationException, DatabseUserNotFoundException{

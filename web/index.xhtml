@@ -2,56 +2,72 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
-      
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
     <h:body>
         <ui:composition template="WEB-INF/templates/template.xhtml">
+            <f:ajax event="load" onevent="alert(8);"/>
             <ui:define name="content">
-            <!-- begin content -->
-            <div class="container">
-                <div class="row">
-                    <div class="span6">
-                        <h:form>
-                            <label>Username</label>
-                            <h:inputText id="username" class="span3" value="#{user.username}"
-                                         required="true"
-                                         requiredMessage="Please enter your username."
-                                         />
-                            <h:message for="username" style="color:red"/>
-                            <select class="span3">
-                                <option>@wisebed1.itm.uni-luebeck.de</option>
-                            </select>
-                            <label>Password</label>
-                            <h:inputSecret value="#{user.password}"/>
-                            <label>URN Prefix</label>
-                            <span class="uneditable-input">urn:wisebed:uzl1:</span>
-                            <label>Node URN's (use "," as delimiter)</label>
-                            <h:inputTextarea value="#{user.nodeURNs}"></h:inputTextarea><br />		        	
-                            <label>duration (in minutes)</label>
-                            <input  type="number" value="#{user.duration}" min="0" max="60"/>
-                            <label>offset (in minutes)</label>
-                            <input type="number" value="#{user.offset}" min="0" max="60"/>        	
-                            <hr/><p>No account yet? <a href="http://wisebed.eu/site/index.php/register/">Register here!</a></p>
-                            <h:commandButton action="#{user.doReserve()}" value="reserve" onclick=""/>
-                        </h:form>
-                    </div>
-                    <div class="span6">
-                        <div class="hero-unit">
-                            <h2>Introduction</h2>
-                            <p>	 
-                                The Wisebed Testbed enables the easy deployment of 
-                                large scale wireless sensor network experiments without the need to buy the 
-                                expensive sensor node hardware. However, programmers still have to learn an embedded 
-                                programming language and put up with the tedious debugging characteristics of a large 
-                                embedded network. To lower these prerequisites for starting with the development of 
-                                sensor network applications (e.g., for students), this projects aims at creating a 
-                                remote control interface for wisebed nodes, 
-                                which allows the easy programming and debugging of these applications inside a Webbrowser.
-                            </p>
+                <!-- some script -->
+                <script>
+                    jQuery(document).ready(function() {
+                        manageExperimentLogin($("#loginForm\\:selectedExperiments").is(':checked'));
+                    });
+                </script>
+                
+                <!-- begin content -->
+                <div class="container">
+                    <div class="row">
+                        <div class="span6">
+                            <h:form id="loginForm">
+                                <label>Username</label>
+                                <h:inputText id="username" class="span3" value="#{user.username}"
+                                             required="true"
+                                             requiredMessage="Please enter your username."
+                                             />
+                                <h:message for="username" style="color:red"/>
+                                <select class="span3">
+                                    <option>@wisebed1.itm.uni-luebeck.de</option>
+                                </select>
+                                <label>Password</label>
+                                <h:inputSecret value="#{user.password}"/>
+
+                                <label class="checkbox">
+                                    <h:selectBooleanCheckbox id="selectedExperiments" onchange="manageExperimentLogin(this.checked);" value="#{user.experimentLogin}"/>
+                                        Login with experiment
+                                </label>
+
+                                <label>URN Prefix</label>
+                                <span class="uneditable-input">urn:wisebed:uzl1:</span>
+                                <label>Node URN's (use "," as delimiter)</label>
+                                <h:inputTextarea id="nodeUrns" value="#{user.nodeURNs}"/>
+                                <br />		        	
+                                <label>duration (in minutes)</label>
+                                <input type="number" id="duration" value="#{user.duration}" min="0" max="60"/>
+                                <label>offset (in minutes)</label>
+                                <input type="number" id="offset" value="#{user.offset}" min="0" max="60"/>        	
+                                <hr/><p>No account yet? <a href="http://wisebed.eu/site/index.php/register/">Register here!</a></p>
+                                <h:commandButton action="#{user.doLogin()}" value="reserve" />
+                            </h:form>
+                        </div>
+                        <div class="span6">
+                            <div class="hero-unit">
+                                <h2>Introduction</h2>
+                                <p>	 
+                                    The Wisebed Testbed enables the easy deployment of 
+                                    large scale wireless sensor network experiments without the need to buy the 
+                                    expensive sensor node hardware. However, programmers still have to learn an embedded 
+                                    programming language and put up with the tedious debugging characteristics of a large 
+                                    embedded network. To lower these prerequisites for starting with the development of 
+                                    sensor network applications (e.g., for students), this projects aims at creating a 
+                                    remote control interface for wisebed nodes, 
+                                    which allows the easy programming and debugging of these applications inside a Webbrowser.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </ui:define>
         </ui:composition>
     </h:body>
