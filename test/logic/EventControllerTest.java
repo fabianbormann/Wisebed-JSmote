@@ -4,8 +4,8 @@
  */
 package logic;
 
-import exceptions.DatabseUserDuplicationException;
-import exceptions.DatabseUserNotFoundException;
+import exceptions.DatabaseUserDuplicationException;
+import exceptions.DatabaseUserNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import model.Node;
 import model.User;
 import org.junit.After;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class EventControllerTest {
     Reservation reservation;
     UserService userService;
     ArrayList<SessionUser> testUsers;
-    ArrayList<String> nodeURNs;
+    ArrayList<Node> nodeURNs;
     String experimentName;
     Date date;
     User user;
@@ -56,7 +57,7 @@ public class EventControllerTest {
         String[] URNs = pattern.split(nodeURNText);
         List nodeUrnList = Arrays.asList(URNs);
         
-        this.nodeURNs = new ArrayList<String>();
+        this.nodeURNs = new ArrayList<Node>();
         this.nodeURNs.addAll(nodeUrnList);
         
         this.testUsers = new ArrayList<SessionUser>();
@@ -67,7 +68,7 @@ public class EventControllerTest {
         for(SessionUser sessionUser : this.testUsers){
             try { 
                 session.removeUser(sessionUser);
-            } catch (DatabseUserNotFoundException e) {
+            } catch (DatabaseUserNotFoundException e) {
                 Logger.getLogger(EventControllerTest.class.getName()).log(Level.SEVERE, e.toString());
             }
         }  
@@ -127,7 +128,7 @@ public class EventControllerTest {
             session.updateUser(sessionUser);
             
         } catch (Exception e) {
-            assertEquals(DatabseUserDuplicationException.class, e.getClass());
+            assertEquals(DatabaseUserDuplicationException.class, e.getClass());
         }
         
         try {
@@ -140,7 +141,7 @@ public class EventControllerTest {
             session.updateUser(sessionUser);
             
         } catch (Exception e) {
-            assertEquals(DatabseUserNotFoundException.class, e.getClass());
+            assertEquals(DatabaseUserNotFoundException.class, e.getClass());
         }
     }
     

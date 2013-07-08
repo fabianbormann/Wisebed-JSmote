@@ -4,6 +4,7 @@
  */
 package logic;
 
+import model.Node;
 import com.google.common.collect.Lists;
 import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.tr.util.StringUtils;

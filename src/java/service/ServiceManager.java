@@ -4,7 +4,8 @@
  */
 package service;
 
-import exceptions.DatabseUserNotFoundException;
+import exceptions.DatabaseExperimentNotFoundException;
+import exceptions.DatabaseUserNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,10 +21,9 @@ import session.SessionUser;
  *
  * @author Fabian
  */
-public class ServiceManager implements Serializable{
+public class ServiceManager implements Serializable {
 
     private static final String PERSISTENCE_UNIT_NAME = "JSmotePU";
-    
     private static EntityManagerFactory factory;
     private EntityManager em;
 
@@ -31,84 +31,118 @@ public class ServiceManager implements Serializable{
         factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
         em = factory.createEntityManager();
     }
-      
+
     /**
      * Inserts a existing SessionUser in the database and add it's experiment
+     *
      * @param username
      * @param password
-     * @param experiment 
+     * @param experiment
      */
-    public void createUser(SessionUser user, SessionExperiment experiment){
+    public void createUser(SessionUser user, SessionExperiment experiment) {
         user.addExperiment(experiment);
-        
+
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
     }
-    
+
+    /**
+     * Inserts a existing SessionUser in the database
+     *
+     * @param username
+     * @param password
+     * @param experiment
+     */
+    public void createUser(SessionUser user) {
+        em.getTransaction().begin();
+        em.persist(user);
+        em.getTransaction().commit();
+    }
+
     /**
      * Returns a list with all user in the database
-     * @return 
+     *
+     * @return
      */
-    public List getAllUser(){
+    public List getAllUser() {
         TypedQuery<SessionUser> query = em.createQuery("select user from SessionUser user", SessionUser.class);
         return query.getResultList();
     }
-       
+
     /**
      * Inserts a new experiment into the database
+     *
      * @param name
      * @param nodes
-     * @param datetime 
+     * @param datetime
      */
-    public void createExperiment(String name, ArrayList nodes, Date datetime, SessionUser sessionUser){
+    public void createExperiment(String name, ArrayList nodes, Date datetime, SessionUser sessionUser) {
         SessionExperiment experiment = new SessionExperiment(name, nodes, datetime, sessionUser);
-        
+
         em.getTransaction().begin();
         em.persist(experiment);
         em.getTransaction().commit();
     }
-    
+
     /**
      * Inserts an existing experiment into the database
-     * @param experiment 
+     *
+     * @param experiment
      */
-    public void createExperiment(SessionExperiment experiment){
-        
-        SessionExperiment sessionExperiment = new SessionExperiment
-                (experiment.getName(), experiment.getNodes(), experiment.getDatetime(), experiment.getSessionUser());
-        
+    public void createExperiment(SessionExperiment experiment) {
+
+        SessionExperiment sessionExperiment = new SessionExperiment(experiment.getName(), experiment.getNodes(), experiment.getDatetime(), experiment.getSessionUser());
+
         em.getTransaction().begin();
         em.persist(sessionExperiment);
         em.getTransaction().commit();
     }
-    
+
     /**
      * Returns a list with all experiments in the database
-     * @return 
+     *
+     * @return
      */
-    public List getAllExperiments(){
-        TypedQuery<SessionExperiment> query = 
+    public List getAllExperiments() {
+        TypedQuery<SessionExperiment> query =
                 em.createQuery("select experiment from SessionExperiment experiment", SessionExperiment.class);
-        return query.getResultList();    
-    } 
+        return query.getResultList();
+    }
 
     public void updateUser(SessionUser sessionUser) {
         em.merge(sessionUser);
     }
-    
-    public void removeUser(SessionUser sessionUser) throws DatabseUserNotFoundException {
+
+    public void removeUser(SessionUser sessionUser) throws DatabaseUserNotFoundException {
         String username = sessionUser.getName();
-        
+
         TypedQuery<SessionUser> query = em.createQuery("select user from SessionUser user WHERE user.name = :username", SessionUser.class)
                 .setParameter("username", username);
-        if(!query.getResultList().isEmpty()){
+        if (!query.getResultList().isEmpty()) {
             em.getTransaction().begin();
             em.remove(query.getResultList().get(0));
             em.getTransaction().commit();
+        } else {
+            throw new DatabaseUserNotFoundException();
         }
-        else{
-            throw new DatabseUserNotFoundException();
+    }
+
+    public void removeExperiment(SessionExperiment sessionExperiment) throws DatabaseExperimentNotFoundException{
+        String name = sessionExperiment.getName();
+        Date date = sessionExperiment.getDatetime();
+
+        TypedQuery<SessionUser> query = 
+            em.createQuery("select experiment from SessionExperiment experiment WHERE experiment.name = :experimentName"
+                + "AND experiment.datetime = :datetime", SessionUser.class)
+                .setParameter("experimentName", name)
+                .setParameter("datetime", date);
+        if (!query.getResultList().isEmpty()) {
+            em.getTransaction().begin();
+            em.remove(query.getResultList().get(0));
+            em.getTransaction().commit();
+        } else {
+            throw new DatabaseExperimentNotFoundException();
         }
     }
 }

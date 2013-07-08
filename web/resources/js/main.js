@@ -17,6 +17,7 @@ function showExperimentLogin(){
     $("#offset").removeAttr("readonly");
 }
 
-function okese(){
-    alert("hi");
+function showExperimentForm(){
+    $("#newExperimentForm").css("display", "");
+    $("#newExperimentButton").css("display", "none");
 }

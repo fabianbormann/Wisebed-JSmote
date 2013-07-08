@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+    <h:body> 
+        <ui:composition template="WEB-INF/templates/loggedUserTemplate.xhtml">
+            <ui:define name="content">
+                <!-- breadcrumbs -->
+                <ul class="breadcrumb">
+                    <li><h:link value="Home" outcome="home" /> <span class="divider">/</span></li>
+                    <li><h:link value="Previous Experiments" outcome="experiments" /> <span class="divider">/</span></li>
+                    <li class="active">#{user.getExperimentName(param.show)}</li>
+                </ul>
+                <!-- begin content -->
+                <!--                <div class="alert alert-success">
+                                    <p>Hello <b>#{user.username}</b> now you are logged in! Your reservation key is 
+                                        <b>#{user.secretReservationKey}</b>.</p>
+                                </div>-->
+                <div spellcheck="false">
+                    <h:form>
+                        <label>Run code on this nodes:</label>
+                        <h:inputTextarea styleClass="flashArrayArea" value="#{user.getExperimentNodes(param.show)}"></h:inputTextarea><br />
+                        <label>Javascriptcode:</label>
+                        <h:inputTextarea styleClass="jsArea"></h:inputTextarea><br />
+                        <h:inputTextarea  readonly="true" styleClass="nodeConsole"></h:inputTextarea><br />
+                        <h:commandButton action="#{user.doFlash()}" value="run"/>
+                    </h:form>   
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

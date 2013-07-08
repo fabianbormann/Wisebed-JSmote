@@ -4,10 +4,17 @@
  */
 package service;
 
+import exceptions.DatabaseUserDuplicationException;
+import exceptions.DatabaseUserNotFoundException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import model.Node;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +33,8 @@ public class ServiceManagerTest {
     private static EntityManagerFactory factory;
     private EntityManager em;
     private SessionUser sessionUser;
+    private ServiceManager serviceManager;
+    private UserService userService;
 
     @Before
     public void setUp() {
@@ -34,6 +43,9 @@ public class ServiceManagerTest {
         em = factory.createEntityManager();
 
         sessionUser = new SessionUser("DeleteIt", "NotImportant");
+        
+        userService = new UserService();
+        serviceManager = new ServiceManager();
     }
     
     @After
@@ -79,5 +91,49 @@ public class ServiceManagerTest {
         int updatedUserCount = query.getResultList().size();
         
         assertEquals(userCount+1,  updatedUserCount);
+    }
+    
+    @Test
+    public void testSaveAndGetExperiments(){
+        
+        int userCountBefore = serviceManager.getAllUser().size();
+        int experimentCountBefore = serviceManager.getAllExperiments().size();
+        
+        SessionUser testUser = new SessionUser("testUserWithExperiments", "1234");
+        
+        Date date = new java.util.Date();
+        ArrayList<Node> nodeUrns = new ArrayList<Node>();
+        nodeUrns.add(new Node("urn:wisebed:uzl1:0x2005"));
+        nodeUrns.add(new Node("urn:wisebed:uzl1:0x2008"));
+        
+        SessionExperiment experiment = new SessionExperiment("NewExperiment001", nodeUrns, date, testUser);
+        
+        testUser.addExperiment(experiment);
+        
+        serviceManager.createExperiment(experiment);
+        serviceManager.createUser(testUser);
+        
+        try {
+            SessionUser loadedUser = userService.getSessionUser(testUser.getName());
+            
+            SessionExperiment latestUserExperiment = loadedUser.getExperiments().get(0);
+            
+            assertEquals(experiment.getName(), latestUserExperiment.getName());
+            assertEquals(experiment.getDatetime(), latestUserExperiment.getDatetime());
+            assertEquals(experiment.getSessionUser(), latestUserExperiment.getSessionUser());
+            
+        } catch (Exception e) {
+            Logger.getLogger(ServiceManagerTest.class.getName()).log(Level.SEVERE, e.toString());
+        }
+        try {
+            serviceManager.removeUser(testUser);
+            serviceManager.removeExperiment(experiment);
+        } catch (Exception e) {
+            Logger.getLogger(ServiceManagerTest.class.getName()).log(Level.SEVERE, e.toString());
+        }
+        
+        assertEquals(userCountBefore, serviceManager.getAllUser().size());
+        assertEquals(experimentCountBefore, serviceManager.getAllExperiments().size());
+ 
     }
 }

@@ -4,8 +4,8 @@
  */
 package service;
 
-import exceptions.DatabseUserDuplicationException;
-import exceptions.DatabseUserNotFoundException;
+import exceptions.DatabaseUserDuplicationException;
+import exceptions.DatabaseUserNotFoundException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -43,16 +43,16 @@ public class UserService {
         return !(query.getResultList().isEmpty());       
     }
     
-    public SessionUser getSessionUser(String username) throws DatabseUserDuplicationException, DatabseUserNotFoundException{
+    public SessionUser getSessionUser(String username) throws DatabaseUserDuplicationException, DatabaseUserNotFoundException{
          TypedQuery<SessionUser> query = em.createQuery("SELECT user FROM SessionUser user WHERE user.name = :name",
          SessionUser.class)
         .setParameter("name", username);
          
         if(query.getResultList().isEmpty()){
-            throw new DatabseUserNotFoundException();
+            throw new DatabaseUserNotFoundException();
         }
         else if(query.getResultList().size() > 1){
-            throw new DatabseUserDuplicationException();
+            throw new DatabaseUserDuplicationException();
         }
         else{
             return query.getResultList().get(0);

@@ -4,7 +4,7 @@
  */
 package service;
 
-import exceptions.DatabseUserNotFoundException;
+import exceptions.DatabaseUserNotFoundException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +39,7 @@ public class UserServiceTest {
         for (SessionUser sessionUser : this.testUsers) {
             try {
                 session.removeUser(sessionUser);
-            } catch (DatabseUserNotFoundException e) {
+            } catch (DatabaseUserNotFoundException e) {
                 Logger.getLogger(EventControllerTest.class.getName()).log(Level.SEVERE, e.toString());
             }
         }

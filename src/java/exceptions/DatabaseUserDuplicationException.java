@@ -8,6 +8,6 @@ package exceptions;
  *
  * @author Fabian
  */
-public class DatabseUserNotFoundException extends Exception{
+public class DatabaseUserDuplicationException extends Exception{
     
 }

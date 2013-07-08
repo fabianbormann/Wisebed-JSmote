@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import model.Node;
 
 /**
  *
@@ -26,7 +27,9 @@ public class SessionExperiment implements Serializable{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String name;
-    private ArrayList nodes;
+    private String code;
+    private String console;
+    private ArrayList<Node> nodes;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date datetime;
     
@@ -36,7 +39,7 @@ public class SessionExperiment implements Serializable{
     public SessionExperiment() {
     }
     
-    public SessionExperiment(String name, ArrayList nodes, Date datetime, SessionUser sessionUser) {
+    public SessionExperiment(String name, ArrayList<Node> nodes, Date datetime, SessionUser sessionUser) {
         this.name = name;
         this.nodes = nodes;
         this.datetime = datetime;
@@ -51,11 +54,11 @@ public class SessionExperiment implements Serializable{
         this.name = name;
     }
 
-    public ArrayList getNodes() {
+    public ArrayList<Node> getNodes() {
         return nodes;
     }
 
-    public void setNodes(ArrayList nodes) {
+    public void setNodes(ArrayList<Node> nodes) {
         this.nodes = nodes;
     }
 
@@ -73,6 +76,22 @@ public class SessionExperiment implements Serializable{
 
     public void setSessionUser(SessionUser sessionUser) {
         this.sessionUser = sessionUser;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getConsole() {
+        return console;
+    }
+
+    public void setConsole(String console) {
+        this.console = console;
     }
     
 }

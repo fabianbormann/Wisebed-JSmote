@@ -7,8 +7,8 @@ package logic;
 import eu.wisebed.api.rs.ReservervationConflictExceptionException;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
 import eu.wisebed.api.snaa.SNAAExceptionException;
-import exceptions.DatabseUserDuplicationException;
-import exceptions.DatabseUserNotFoundException;
+import exceptions.DatabaseUserDuplicationException;
+import exceptions.DatabaseUserNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,6 +21,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
+import model.Node;
 import model.User;
 import service.ServiceManager;
 import service.UserService;
@@ -73,9 +74,12 @@ public class EventController {
             String experimentName = "experiment_" + date.toString();
             Pattern pattern = Pattern.compile(",");
             String[] URNs = pattern.split(user.getNodeURNs());
-            List nodeUrnList = Arrays.asList(URNs);
-            ArrayList<String> UrnArrayList = new ArrayList<String>();
-            UrnArrayList.addAll(nodeUrnList);
+            List<String> nodeUrnList = Arrays.asList(URNs);
+            ArrayList<Node> UrnArrayList = new ArrayList<Node>();
+            
+            for(String nodeUrn : nodeUrnList){
+                UrnArrayList.add(new Node(nodeUrn));
+            }
 
             if (userService.userExists(user.getUsername(), user.getPassword())) {
                 updateExistingUser(experimentName, UrnArrayList, date);
@@ -98,7 +102,7 @@ public class EventController {
         return "index";
     }
 
-    private void updateExistingUser(String experimentName, ArrayList<String> NodeList, Date date) {
+    private void updateExistingUser(String experimentName, ArrayList<Node> NodeList, Date date) {
         try {
             SessionUser sessionUser = userService.getSessionUser(user.getUsername());
 
@@ -108,14 +112,14 @@ public class EventController {
             sessionUser.addExperiment(sessionExperiment);
             session.updateUser(sessionUser);
 
-        } catch (DatabseUserDuplicationException e) {
+        } catch (DatabaseUserDuplicationException e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, e.toString());
-        } catch (DatabseUserNotFoundException e) {
+        } catch (DatabaseUserNotFoundException e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, e.toString());
         }
     }
 
-    private void storeNewSession(String experimentName, ArrayList<String> NodeList, Date date) {
+    private void storeNewSession(String experimentName, ArrayList<Node> NodeList, Date date) {
         SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
 
         SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser);
@@ -158,5 +162,10 @@ public class EventController {
             Logger.getLogger(EventController.class.getName()).log(Level.SEVERE, e.toString());
             return "index";
         }
+    }
+
+    public String startLogout() {
+        httpSession.removeAttribute("authenticated");
+        return "index";
     }
 }

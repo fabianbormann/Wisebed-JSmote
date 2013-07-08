@@ -1,4 +1,5 @@
 #wrapper {width: 70%; margin: 0 auto;}
 
 .jsArea {width: 100%; max-width: 100%;  min-height: 100px;}
+.nodeConsole {width: 100%; max-width: 100%;  min-height: 100px; background: black !important; cursor: default !important; color: white !important; font-family: monospace !important;}
 .flashArrayArea {width: 100%; max-width: 100%; min-height: 50px;}

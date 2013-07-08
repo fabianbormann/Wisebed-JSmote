@@ -1,10 +1,12 @@
-package logic;
+package model;
+
+import java.io.Serializable;
 
 /**
  *
  * @author Fabian
  */
-public class Node {
+public class Node implements Serializable{
 
     private String nodeURN;
 
