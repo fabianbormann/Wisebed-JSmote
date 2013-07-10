@@ -13,48 +13,34 @@
                 <p>Click on a experiment in the table to see more information like
                     your source code and the Node URNs.</p>
                 <br />
-                <h:dataTable value="#{user.previousExperiment}" var="experiment"
+                <h:dataTable value="#{experiment.previousExperiments}" var="current_experiment"
                              styleClass="table table-hover table-striped">
                     <h:column>
                         <f:facet name="header">#</f:facet>
-                            #{experiment.index}       
+                            #{current_experiment.index}       
                     </h:column>
 
                     <h:column>
                         <f:facet name="header">Name</f:facet>
                         <h:link outcome="experiment"
-                                value="#{experiment.experimentName}">
-                            <f:param name="show" value="#{experiment.index}"/>
+                                value="#{current_experiment.experimentName}">
+                            <f:param name="show" value="#{current_experiment.index}"/>
                         </h:link>
                     </h:column>
 
                     <h:column>
                         <f:facet name="header">Reserved Nodes</f:facet>
-                            #{experiment.nodeCount}
+                            #{current_experiment.nodeCount}
                     </h:column>
 
                     <h:column>
                         <f:facet name="header">Time</f:facet>
-                            #{experiment.datetime}
+                            #{current_experiment.datetime}
                     </h:column>
                 </h:dataTable>
                 <br />
                 <a class="btn btn-large btn-success" id="newExperimentButton" onclick="showExperimentForm();">Start a new experiment</a>
-                <div id="newExperimentForm" style="display: none">
-                    <h:form id="reservationForm">
-                        <label>URN Prefix</label>
-                        <span class="uneditable-input">urn:wisebed:uzl1:</span>
-                        <label>Node URN's (use "," as delimiter)</label>
-                        <h:inputTextarea id="nodeUrns" value="#{user.nodeURNs}"/>
-                        <br />		        	
-                        <label>duration (in minutes)</label>
-                        <input type="number" id="duration" value="#{user.duration}" min="0" max="60"/>
-                        <label>offset (in minutes)</label>
-                        <input type="number" id="offset" value="#{user.offset}" min="0" max="60"/>        	
-                        <br /><br />
-                        <h:commandButton action="#{user.doLogin()}" value="Reserve" />
-                    </h:form>
-                </div>
+                <ui:include src="WEB-INF/templates/newExperiment.xhtml"/>
             </ui:define>
         </ui:composition>
     </h:body>

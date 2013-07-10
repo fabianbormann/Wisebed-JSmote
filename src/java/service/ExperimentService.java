@@ -5,21 +5,22 @@
 package service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import session.SessionExperiment;
 import session.SessionUser;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 /**
  *
  * @author Fabian
  */
 public class ExperimentService {
-    
+
     private static final String PERSISTENCE_UNIT_NAME = "JSmotePU";
-    
     private static EntityManagerFactory factory;
     private EntityManager em;
 
@@ -27,29 +28,24 @@ public class ExperimentService {
         factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
         em = factory.createEntityManager();
     }
-    
-    public void updateUserExperiments(SessionExperiment experiment, SessionUser user){
-        List experiments = user.getExperiments();
-        experiments.add(experiment);
-        
-        user.setExperiments(experiments);
- 
-        em.createQuery("UPDATE SessionUser user SET user.experiments = :experiments "
-                + "WHERE user.name = :user")
-        .setParameter("name", user.getName())
-        .setParameter("experiments", user.getExperiments());
+
+    public void updateExperiment(SessionExperiment experiment) {
+        em.getTransaction().begin();
+        em.merge(experiment);
+        em.getTransaction().commit();
     }
 
-    private List findExperiment(String name){
-        return em.createQuery(
-        "SELECT experiment FROM SessionExperiment experiment WHERE experiment.name = :name")
-        .setParameter("name", name)
-        .getResultList(); 
+    public SessionExperiment getExperiment(SessionExperiment experiment) {
+
+        String name = experiment.getName();
+        Date date = experiment.getDatetime();
+
+        TypedQuery<SessionExperiment> query =
+                em.createQuery("select experiment from SessionExperiment experiment WHERE experiment.name = :experimentName"
+                + " AND experiment.datetime = :datetime", SessionExperiment.class)
+                .setParameter("experimentName", name)
+                .setParameter("datetime", date);
+
+        return query.getResultList().get(0);
     }
-    
-    public SessionExperiment getExperiment(String name){
-        SessionExperiment experiment = (SessionExperiment) findExperiment(name).get(0);
-        return experiment;
-    }
-    
 }

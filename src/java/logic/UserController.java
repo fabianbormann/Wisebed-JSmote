@@ -34,7 +34,7 @@ import session.SessionUser;
  */
 @ManagedBean(name = "controller")
 @SessionScoped
-public class EventController {
+public class UserController {
 
     ServiceManager session = new ServiceManager();
     UserService userService = new UserService();
@@ -45,7 +45,7 @@ public class EventController {
     User user;
     Remote remote;
 
-    public EventController(User user) {
+    public UserController(User user) {
         this.user = user;
     }
    
@@ -88,9 +88,17 @@ public class EventController {
             }
 
             httpSession.setAttribute("authenticated", this.user.hashCode());
+            httpSession.setAttribute("username", this.user.getUsername());
             
-            return "manage";
-
+            try {
+                SessionUser sessionUser = userService.getSessionUser(user.getUsername());
+                int latestExperiment = sessionUser.getExperiments().size();
+                
+                return "experiment?show="+latestExperiment;
+            } catch (Exception e) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
+                return "experiment?show=1";
+            }
         } catch (AuthenticationExceptionException e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
         } catch (SNAAExceptionException e) {
@@ -129,7 +137,7 @@ public class EventController {
 
     public String startFlashing() {
         this.remote.flashRemoteImage();
-        return "manage";
+        return "experiment?show=1";
     }
 
     public Remote getRemote() {
@@ -154,18 +162,20 @@ public class EventController {
             SessionUser sessionUser = userService.getSessionUser(user.getUsername());
             if(sessionUser.getPassword().equals(user.getPassword())){
                 httpSession.setAttribute("authenticated", this.user.hashCode());
+                httpSession.setAttribute("username", this.user.getUsername());
                 return "home";
             }
             else
                 return "index";
         } catch (Exception e) {
-            Logger.getLogger(EventController.class.getName()).log(Level.SEVERE, e.toString());
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
             return "index";
         }
     }
 
     public String startLogout() {
         httpSession.removeAttribute("authenticated");
+        httpSession.removeAttribute("username");
         return "index";
     }
 }

@@ -28,7 +28,7 @@ import session.SessionUser;
  *
  * @author Fabian
  */
-public class EventControllerTest {
+public class UserControllerTest {
     
     ServiceManager session;
     Reservation reservation;
@@ -69,7 +69,7 @@ public class EventControllerTest {
             try { 
                 session.removeUser(sessionUser);
             } catch (DatabaseUserNotFoundException e) {
-                Logger.getLogger(EventControllerTest.class.getName()).log(Level.SEVERE, e.toString());
+                Logger.getLogger(UserControllerTest.class.getName()).log(Level.SEVERE, e.toString());
             }
         }  
     }

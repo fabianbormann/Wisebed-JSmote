@@ -91,11 +91,8 @@ public class ServiceManager implements Serializable {
      * @param experiment
      */
     public void createExperiment(SessionExperiment experiment) {
-
-        SessionExperiment sessionExperiment = new SessionExperiment(experiment.getName(), experiment.getNodes(), experiment.getDatetime(), experiment.getSessionUser());
-
         em.getTransaction().begin();
-        em.persist(sessionExperiment);
+        em.persist(experiment);
         em.getTransaction().commit();
     }
 
@@ -132,9 +129,9 @@ public class ServiceManager implements Serializable {
         String name = sessionExperiment.getName();
         Date date = sessionExperiment.getDatetime();
 
-        TypedQuery<SessionUser> query = 
+        TypedQuery<SessionExperiment> query = 
             em.createQuery("select experiment from SessionExperiment experiment WHERE experiment.name = :experimentName"
-                + "AND experiment.datetime = :datetime", SessionUser.class)
+                + " AND experiment.datetime = :datetime", SessionExperiment.class)
                 .setParameter("experimentName", name)
                 .setParameter("datetime", date);
         if (!query.getResultList().isEmpty()) {

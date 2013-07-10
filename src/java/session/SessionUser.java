@@ -28,18 +28,20 @@ public class SessionUser implements Serializable{
     private String name;
     private String password;
     
-    @OneToMany(mappedBy = "sessionUser", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<SessionExperiment> experiments = new ArrayList<SessionExperiment>();
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "sessionUser")
+    private List<SessionExperiment> experiments;
 
     public SessionUser(){}
     
     public SessionUser(String username, String password, SessionExperiment experiment){
         this.name = username;
         this.password = password;
+        experiments = new ArrayList<SessionExperiment>();
         this.experiments.add(experiment);
     }
     
     public SessionUser(String username, String password){
+        experiments = new ArrayList<SessionExperiment>();
         this.name = username;
         this.password = password;
     }

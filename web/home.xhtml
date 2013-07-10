@@ -12,21 +12,7 @@
                     <p class="lead">Start a new wisebed experiment! Take a look at the examples, manage or share
                         your previous experiments. You can start a new experiment on the <h:link value="experiments page" outcome="experiments" /> or by clicking this button.</p>
                     <a class="btn btn-large btn-success" id="newExperimentButton" onclick="showExperimentForm();">Start a new experiment</a>
-                    <div id="newExperimentForm" style="display: none">
-                        <h:form id="reservationForm">
-                            <label>URN Prefix</label>
-                            <span class="uneditable-input">urn:wisebed:uzl1:</span>
-                            <label>Node URN's (use "," as delimiter)</label>
-                            <h:inputTextarea id="nodeUrns" value="#{user.nodeURNs}"/>
-                            <br />		        	
-                            <label>duration (in minutes)</label>
-                            <input type="number" id="duration" value="#{user.duration}" min="0" max="60"/>
-                            <label>offset (in minutes)</label>
-                            <input type="number" id="offset" value="#{user.offset}" min="0" max="60"/>        	
-                            <br /><br />
-                            <h:commandButton action="#{user.doFlash()}" value="Reserve" />
-                        </h:form>
-                    </div>
+                    <ui:include src="WEB-INF/templates/newExperiment.xhtml"/>
                 </div>
                 <br />
                 <hr />

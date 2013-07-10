@@ -8,7 +8,7 @@ import exceptions.DatabaseUserNotFoundException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import logic.EventControllerTest;
+import logic.UserControllerTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class UserServiceTest {
             try {
                 session.removeUser(sessionUser);
             } catch (DatabaseUserNotFoundException e) {
-                Logger.getLogger(EventControllerTest.class.getName()).log(Level.SEVERE, e.toString());
+                Logger.getLogger(UserControllerTest.class.getName()).log(Level.SEVERE, e.toString());
             }
         }
     }
