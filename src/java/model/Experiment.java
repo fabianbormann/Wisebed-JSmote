@@ -72,7 +72,5 @@ public class Experiment {
 
     public void setConsole(String console) {
         this.console = console;
-    }
-    
-    
+    } 
 }

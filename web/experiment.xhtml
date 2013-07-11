@@ -4,8 +4,7 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
-
-
+    
     <h:body> 
         <ui:composition template="WEB-INF/templates/loggedUserTemplate.xhtml">
             <ui:define name="content">
@@ -16,10 +15,11 @@
                     <li class="active">#{experiment.name}</li>
                 </ul>
                 <!-- begin content -->
-                <!--                <div class="alert alert-success">
-                                    <p>Hello <b>#{user.username}</b> now you are logged in! Your reservation key is 
-                                        <b>#{user.secretReservationKey}</b>.</p>
-                                </div>-->
+                <div class="alert alert-success">
+                    <p>Hey <b>#{user.username}</b> this experiment ends in 
+                        <b id="timeleft">#{experiment.timeleft}</b>. Your reservation key is 
+                        <b>#{user.secretReservationKey}</b>.</p>
+                </div>
                 <div spellcheck="false">
                     <h:form>
                         <label>Run code on this nodes:</label>

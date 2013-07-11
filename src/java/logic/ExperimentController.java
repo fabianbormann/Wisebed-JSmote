@@ -131,4 +131,36 @@ public class ExperimentController {
         //this.doFlash();
         return "experiment?show=" + this.getExperimentId();
     }
+    
+    public String getTimeleft() {
+        
+        SessionExperiment sessionExperiment = getExperiment();
+        long start = sessionExperiment.getDatetime().getTime();
+        int duration = sessionExperiment.getDuration()*1000;
+        int offset = sessionExperiment.getOffset()*1000;
+        start += offset;
+        long end = start+duration;
+   
+        Date experimentEnd = new Date();
+        experimentEnd.setTime(end);
+        Date experimentStart = new Date();
+        experimentEnd.setTime(start);
+        
+        Date currentDatetime = new Date();
+        long current = currentDatetime.getTime();
+        
+        long timeLeft = (end-current)/1000;
+        
+        if(experimentStart.before(currentDatetime)){
+            return "This experiment beginns in "+String.valueOf(start/1000)+" secounds";
+        }
+        else if(currentDatetime.after(experimentEnd)) {
+            return "This experiment is already finished";
+        }
+        else if(currentDatetime.before(experimentEnd)) {
+            return "This experiment will be finished in "+String.valueOf(timeLeft)+" secounds";
+        }        
+     
+        return "";
+    }
 }

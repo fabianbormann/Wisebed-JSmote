@@ -32,6 +32,8 @@ public class SessionExperiment implements Serializable{
     private ArrayList<Node> nodes;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date datetime;
+    private int duration;
+    private int offset;
     
     @ManyToOne(cascade = CascadeType.PERSIST)
     private SessionUser sessionUser;
@@ -92,6 +94,22 @@ public class SessionExperiment implements Serializable{
 
     public void setConsole(String console) {
         this.console = console;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
     
 }

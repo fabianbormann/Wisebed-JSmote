@@ -131,6 +131,10 @@ public class UserController {
         SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
 
         SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser);
+        
+        sessionExperiment.setDuration(user.getDuration());
+        sessionExperiment.setOffset(user.getOffset());
+        
         session.createExperiment(sessionExperiment);
         session.createUser(sessionUser, sessionExperiment);
     }
