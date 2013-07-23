@@ -7,6 +7,7 @@ package logic;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
@@ -128,13 +129,14 @@ public class ExperimentController {
     }
 
     public String run() {
-        //this.doFlash();
+        this.doFlash();
         return "experiment?show=" + this.getExperimentId();
     }
     
     public String getTimeleft() {
         
         SessionExperiment sessionExperiment = getExperiment();
+        
         long start = sessionExperiment.getDatetime().getTime();
         int duration = sessionExperiment.getDuration()*1000;
         int offset = sessionExperiment.getOffset()*1000;
@@ -144,23 +146,53 @@ public class ExperimentController {
         Date experimentEnd = new Date();
         experimentEnd.setTime(end);
         Date experimentStart = new Date();
-        experimentEnd.setTime(start);
+        experimentStart.setTime(start);
         
         Date currentDatetime = new Date();
         long current = currentDatetime.getTime();
         
         long timeLeft = (end-current)/1000;
         
-        if(experimentStart.before(currentDatetime)){
-            return "This experiment beginns in "+String.valueOf(start/1000)+" secounds";
+        if(currentDatetime.before(experimentStart)){
+            return "This experiment begins in "+this.getTimeToExperiment(start,current)+". The secret reservation key is: "+sessionExperiment.getReservationKey();
         }
         else if(currentDatetime.after(experimentEnd)) {
-            return "This experiment is already finished";
+            return "This experiment is already finished.";
         }
         else if(currentDatetime.before(experimentEnd)) {
-            return "This experiment will be finished in "+String.valueOf(timeLeft)+" secounds";
+            return "This experiment will be finished in "+String.valueOf(timeLeft)+" secounds. The secret reservation key is: "+sessionExperiment.getReservationKey();
         }        
      
         return "";
+    }
+
+    private String getTimeToExperiment(long start, long current){
+        
+        int seconds = (int) ((start-current)/1000);
+        
+        int day = (int)TimeUnit.SECONDS.toDays(seconds);        
+        long hours = TimeUnit.SECONDS.toHours(seconds) - (day *24);
+        long minutes = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds)* 60);
+        long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60);
+        
+        if(day > 0){
+            return day+" day(s) "+hours+" hour(s) "+minutes+" minute(s) "+second+" secound(s)";
+        }
+        else if(hours > 0){
+            return hours+" hour(s) "+minutes+" minute(s) "+second+" secound(s)";
+        }
+        else if(minutes > 0){
+            return minutes+" minute(s) "+second+" secound(s)";
+        }
+        else{
+            return second+" secound(s)";
+        }
+    }
+    
+    private void doFlash() {
+        SessionExperiment experiment = this.getExperiment();
+        Remote remote = new Remote(experiment.getNodes(), experiment.getReservationKey());
+        
+        remote.flashRemoteImage();
     }
 }

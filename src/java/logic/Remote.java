@@ -20,6 +20,7 @@ import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import images.EImageType;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -40,10 +41,9 @@ import javax.faces.bean.SessionScoped;
 @SessionScoped
 public class Remote {
 
-    private final String REMOTE_IMAGE_PATH = "C:\\Users\\Fabian\\GSoC\\Wisebed-JSmote\\build\\web\\WEB-INF\\apps\\remote_app\\remote_app.bin";
+    private final String REMOTE_IMAGE_PATH = EImageType.ISENSE.getBinaryPath();
     
     private String secretReservationKey;
-    private ArrayList<String> nodeArray = new ArrayList<String>();
     private ArrayList<Node> nodes = new ArrayList<Node>(){
         @Override
         public String toString(){
@@ -58,16 +58,12 @@ public class Remote {
         }
     };
 
-    public Remote(ArrayList nodeArray) {
-        this.nodeArray = nodeArray;
+    public Remote(ArrayList nodes, String secretReservationKey) {
+        this.nodes = nodes;
+        this.secretReservationKey = secretReservationKey;
     }
 
     public void flashRemoteImage() {
-        for (String nodeURN : nodeArray) {
-            Node node = new Node(nodeURN);
-            nodes.add(node);
-        }
-
         try {
             flash();
         } catch (Exception e) {
@@ -76,7 +72,7 @@ public class Remote {
     }
 
     public String getFlashArray() {
-        return nodeArray.toString();
+        return nodes.toString();
     }
     
     public void setFlashArray(String nodeArray) {}
@@ -151,6 +147,7 @@ public class Remote {
                 }
             }
 
+            @Override
             public void experimentEnded() {
                 Logger.getLogger(Node.class.getName()).log(Level.INFO, "Experiment ended");
             }
@@ -167,6 +164,7 @@ public class Remote {
             try {
                 pcc.connect();
             } catch (Exception e) {
+                Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, e.toString());
                 useProtobuf = false;
             }
         }

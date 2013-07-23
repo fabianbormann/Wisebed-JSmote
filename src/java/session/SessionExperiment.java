@@ -34,6 +34,7 @@ public class SessionExperiment implements Serializable{
     private Date datetime;
     private int duration;
     private int offset;
+    private String reservationKey;
     
     @ManyToOne(cascade = CascadeType.PERSIST)
     private SessionUser sessionUser;
@@ -41,13 +42,29 @@ public class SessionExperiment implements Serializable{
     public SessionExperiment() {
     }
     
+    public SessionExperiment(String name, ArrayList<Node> nodes, Date datetime, SessionUser sessionUser, String reservationKey) {
+        this.name = name;
+        this.nodes = nodes;
+        this.datetime = datetime;
+        this.sessionUser = sessionUser;
+        this.reservationKey = reservationKey;
+    }
+
     public SessionExperiment(String name, ArrayList<Node> nodes, Date datetime, SessionUser sessionUser) {
         this.name = name;
         this.nodes = nodes;
         this.datetime = datetime;
         this.sessionUser = sessionUser;
     }
+    
+    public String getReservationKey() {
+        return reservationKey;
+    }
 
+    public void setReservationKey(String reservationKey) {
+        this.reservationKey = reservationKey;
+    }
+    
     public String getName() {
         return name;
     }

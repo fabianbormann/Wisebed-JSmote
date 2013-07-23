@@ -3,6 +3,7 @@
   <persistence-unit name="JSmotePU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>demo.jsmote</class>
+    <class>session.SessionImage</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/jsmote"/>

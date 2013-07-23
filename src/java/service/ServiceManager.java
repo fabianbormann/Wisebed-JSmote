@@ -77,8 +77,8 @@ public class ServiceManager implements Serializable {
      * @param nodes
      * @param datetime
      */
-    public void createExperiment(String name, ArrayList nodes, Date datetime, SessionUser sessionUser) {
-        SessionExperiment experiment = new SessionExperiment(name, nodes, datetime, sessionUser);
+    public void createExperiment(String name, ArrayList nodes, Date datetime, SessionUser sessionUser, String reservationKey) {
+        SessionExperiment experiment = new SessionExperiment(name, nodes, datetime, sessionUser, reservationKey);
 
         em.getTransaction().begin();
         em.persist(experiment);

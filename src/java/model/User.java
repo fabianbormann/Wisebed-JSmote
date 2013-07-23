@@ -86,12 +86,12 @@ public class User {
         return controller.startLogin();
     }
 
+    public String doReserve(){
+        return controller.startReservation();
+    }
+    
     public String doLogout() {
         return controller.startLogout();
-    }
-
-    private String doFlash() {
-        return controller.startFlashing();
     }
 
     public Boolean getExperimentLogin() {

@@ -43,7 +43,6 @@ public class UserController {
     HttpSession httpSession = (HttpSession)context.getExternalContext().getSession(true); 
     @EJB
     User user;
-    Remote remote;
 
     public UserController(User user) {
         this.user = user;
@@ -59,12 +58,7 @@ public class UserController {
                     user.getUsername() + "@wisebed1.itm.uni-luebeck.de",
                     user.getPassword(), user.getNodeURNs(), user.getOffset(), user.getDuration());
             user.setSecretReservationKey(this.reservation.getSecretReservationKey());
-            this.remote = new Remote(reservation.getReservedNodes());
-            this.remote.setSecretReservationKey(user.getSecretReservationKey());
-
-            //TODO flashing
-            //this.remote.flashRemoteImage();
-
+           
             if (user.getSecretReservationKey().isEmpty()) {
                 return "index?error=authentication_error";
             }
@@ -94,7 +88,7 @@ public class UserController {
                 SessionUser sessionUser = userService.getSessionUser(user.getUsername());
                 int latestExperiment = sessionUser.getExperiments().size();
                 
-                return "experiment?show="+latestExperiment;
+                return "experiments";
             } catch (Exception e) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
                 return "experiment?show=1";
@@ -114,7 +108,7 @@ public class UserController {
         try {
             SessionUser sessionUser = userService.getSessionUser(user.getUsername());
 
-            SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser);
+            SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser, user.getSecretReservationKey());
             session.createExperiment(sessionExperiment);
 
             sessionUser.addExperiment(sessionExperiment);
@@ -130,26 +124,13 @@ public class UserController {
     private void storeNewSession(String experimentName, ArrayList<Node> NodeList, Date date) {
         SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
 
-        SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser);
+        SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser, user.getSecretReservationKey());
         
         sessionExperiment.setDuration(user.getDuration());
         sessionExperiment.setOffset(user.getOffset());
         
         session.createExperiment(sessionExperiment);
         session.createUser(sessionUser, sessionExperiment);
-    }
-
-    public String startFlashing() {
-        this.remote.flashRemoteImage();
-        return "experiment?show=1";
-    }
-
-    public Remote getRemote() {
-        return remote;
-    }
-
-    public void setRemote(Remote remote) {
-        this.remote = remote;
     }
 
     public String startLogin() {
@@ -181,5 +162,9 @@ public class UserController {
         httpSession.removeAttribute("authenticated");
         httpSession.removeAttribute("username");
         return "index";
+    }
+
+    public String startReservation() {
+        return this.reserve();
     }
 }

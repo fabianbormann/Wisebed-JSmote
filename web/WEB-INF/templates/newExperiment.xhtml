@@ -18,7 +18,7 @@
                     <label>offset (in minutes)</label>
                     <input type="number" id="offset" value="#{user.offset}" min="0" max="60"/>        	
                     <br /><br />
-                    <h:commandButton action="#{user.runExperiment()}" value="Reserve" />
+                    <h:commandButton action="#{user.doReserve()}" value="Reserve" />
                 </h:form>
             </div>
         </ui:composition>
