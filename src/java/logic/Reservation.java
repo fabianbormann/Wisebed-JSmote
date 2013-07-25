@@ -34,8 +34,8 @@ public class Reservation {
     private String urnPrefix;
     private String username;
     private String password;
-    private Integer offset;
-    private Integer duration;
+    private int offset;
+    private int duration;
     private List nodeURNs;
     private String secretReservationKey;
     //TODO use variable endpoints
@@ -51,52 +51,37 @@ public class Reservation {
     }
 
     public void reserveNodes(String urnPrefix, String username, String password,
-            String nodeURNs, Integer offset, Integer duration) throws AuthenticationExceptionException, SNAAExceptionException,
+            String nodeURNs, int offset, int duration) throws AuthenticationExceptionException, SNAAExceptionException,
             ReservervationConflictExceptionException {
         this.urnPrefix = urnPrefix;
         this.username = username;
         this.password = password;
-
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URNs before splitting: {0}", nodeURNs);
-
         this.nodeURNs = splitURNs(nodeURNs);
         this.duration = duration;
         this.offset = offset;
 
         List credentialsList = new ArrayList();
-
         AuthenticationTriple credentials = new AuthenticationTriple();
 
-        credentials.setUrnPrefix(urnPrefix);
-        credentials.setUsername(username);
-        credentials.setPassword(password);
+        credentials.setUrnPrefix(this.urnPrefix);
+        credentials.setUsername(this.username);
+        credentials.setPassword(this.password);
 
         credentialsList.add(credentials);
 
-        // do the authentication
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "Authenticating...");
         List secretAuthenticationKeys = authenticationSystem.authenticate(credentialsList);
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "Successfully authenticated!");
 
-        // retrieve the node URNs
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URN 0: {0}", this.nodeURNs.get(0));
-
         List nodeURNsToReserve = this.nodeURNs;
-
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO, "URN 0: {0}", nodeURNsToReserve.get(0));
 
         Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
                 "Retrieved this node URNs: {}", Joiner.on(", ").join(nodeURNsToReserve));
 
-        // create reservation request data to wb-reserve all selected nodes for x minutes
         ConfidentialReservationData reservationData = BeanShellHelper.generateConfidentialReservationData(
                 nodeURNsToReserve,
-                new Date(System.currentTimeMillis() + (offset * 60 * 1000)), duration, TimeUnit.MINUTES,
-                urnPrefix, username);
+                new Date(System.currentTimeMillis() + (this.offset * 60 * 1000)), this.duration, TimeUnit.MINUTES,
+                this.urnPrefix, this.username);
 
-        // do the reservation
-        Logger.getLogger(Reservation.class.getName()).log(Level.INFO,
-                "Trying to reserve the following nodes: {}", nodeURNsToReserve);
         try {
             List secretReservationKeys = reservationSystem.makeReservation(
                     BeanShellHelper.copySnaaToRs(secretAuthenticationKeys),

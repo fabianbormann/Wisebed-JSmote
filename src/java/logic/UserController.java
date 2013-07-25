@@ -40,14 +40,21 @@ public class UserController {
     UserService userService = new UserService();
     Reservation reservation = new Reservation();
     FacesContext context = FacesContext.getCurrentInstance();
-    HttpSession httpSession = (HttpSession)context.getExternalContext().getSession(true); 
-    @EJB
+    HttpSession httpSession = (HttpSession) context.getExternalContext().getSession(true);
     User user;
 
     public UserController(User user) {
         this.user = user;
     }
-   
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public String reserve() {
         try {
             Logger.getLogger(User.class.getName())
@@ -58,7 +65,7 @@ public class UserController {
                     user.getUsername() + "@wisebed1.itm.uni-luebeck.de",
                     user.getPassword(), user.getNodeURNs(), user.getOffset(), user.getDuration());
             user.setSecretReservationKey(this.reservation.getSecretReservationKey());
-           
+
             if (user.getSecretReservationKey().isEmpty()) {
                 return "index?error=authentication_error";
             }
@@ -70,8 +77,8 @@ public class UserController {
             String[] URNs = pattern.split(user.getNodeURNs());
             List<String> nodeUrnList = Arrays.asList(URNs);
             ArrayList<Node> UrnArrayList = new ArrayList<Node>();
-            
-            for(String nodeUrn : nodeUrnList){
+
+            for (String nodeUrn : nodeUrnList) {
                 UrnArrayList.add(new Node(nodeUrn));
             }
 
@@ -83,11 +90,9 @@ public class UserController {
 
             httpSession.setAttribute("authenticated", this.user.hashCode());
             httpSession.setAttribute("username", this.user.getUsername());
-            
+
             try {
                 SessionUser sessionUser = userService.getSessionUser(user.getUsername());
-                int latestExperiment = sessionUser.getExperiments().size();
-                
                 return "experiments";
             } catch (Exception e) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
@@ -107,13 +112,13 @@ public class UserController {
     private void updateExistingUser(String experimentName, ArrayList<Node> NodeList, Date date) {
         try {
             SessionUser sessionUser = userService.getSessionUser(user.getUsername());
-
             SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser, user.getSecretReservationKey());
-            session.createExperiment(sessionExperiment);
+
+            sessionExperiment.setDuration(user.getDuration());
+            sessionExperiment.setOffset(user.getOffset());
 
             sessionUser.addExperiment(sessionExperiment);
             session.updateUser(sessionUser);
-
         } catch (DatabaseUserDuplicationException e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, e.toString());
         } catch (DatabaseUserNotFoundException e) {
@@ -125,19 +130,17 @@ public class UserController {
         SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
 
         SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser, user.getSecretReservationKey());
-        
+
         sessionExperiment.setDuration(user.getDuration());
         sessionExperiment.setOffset(user.getOffset());
-        
-        session.createExperiment(sessionExperiment);
+
         session.createUser(sessionUser, sessionExperiment);
     }
 
     public String startLogin() {
-        if(user.getExperimentLogin() == true){
+        if (user.getExperimentLogin() == true) {
             return this.reserve();
-        }
-        else{    
+        } else {
             return userLoginPossible();
         }
     }
@@ -145,13 +148,13 @@ public class UserController {
     private String userLoginPossible() {
         try {
             SessionUser sessionUser = userService.getSessionUser(user.getUsername());
-            if(sessionUser.getPassword().equals(user.getPassword())){
+            if (sessionUser.getPassword().equals(user.getPassword())) {
                 httpSession.setAttribute("authenticated", this.user.hashCode());
                 httpSession.setAttribute("username", this.user.getUsername());
                 return "home";
-            }
-            else
+            } else {
                 return "index";
+            }
         } catch (Exception e) {
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
             return "index";

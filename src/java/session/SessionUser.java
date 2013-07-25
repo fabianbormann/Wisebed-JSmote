@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 /**
@@ -28,7 +29,7 @@ public class SessionUser implements Serializable{
     private String name;
     private String password;
     
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "sessionUser")
+    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true, mappedBy = "sessionUser")
     private List<SessionExperiment> experiments;
 
     public SessionUser(){}
@@ -76,7 +77,7 @@ public class SessionUser implements Serializable{
         return experiments;
     }
 
-    public void setExperiments(List<SessionExperiment> experiments) {
+    public void setExperiments(ArrayList<SessionExperiment> experiments) {
         this.experiments = experiments;
     }
     

@@ -30,7 +30,7 @@ public class SessionExperiment implements Serializable{
     private String code;
     private String console;
     private ArrayList<Node> nodes;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date datetime;
     private int duration;
     private int offset;

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpSession;
 public class SecurityFilter implements Filter {
 
     private final String[] forbiddenSites = {"home.xhtml","share.xhtml",
-        "experiments.xhtml", "settings.xhtml"};
+        "experiments.xhtml", "settings.xhtml", "experiment.xhtml"};
         
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse serveltResponse, FilterChain chain) throws IOException, ServletException {

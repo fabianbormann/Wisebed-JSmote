@@ -108,7 +108,9 @@ public class ServiceManager implements Serializable {
     }
 
     public void updateUser(SessionUser sessionUser) {
+        em.getTransaction().begin();    
         em.merge(sessionUser);
+        em.getTransaction().commit();
     }
 
     public void removeUser(SessionUser sessionUser) throws DatabaseUserNotFoundException {

@@ -44,9 +44,11 @@
                                 <h:inputTextarea id="nodeUrns" value="#{user.nodeURNs}"/>
                                 <br />		        	
                                 <label>duration (in minutes)</label>
-                                <input type="number" id="duration" value="#{user.duration}" min="0" max="60"/>
+                                <!-- <input type="number"  min="0" max="60"/> -->
+                                <h:inputText id="duration" value="#{user.duration}"/>
                                 <label>offset (in minutes)</label>
-                                <input type="number" id="offset" value="#{user.offset}" min="0" max="60"/>        	
+                                <!-- <input type="number"  min="0" max="60"/> -->
+                                <h:inputText id="offset" value="#{user.offset}"/>     	
                                 <hr/><p>No account yet? <a href="http://wisebed.eu/site/index.php/register/">Register here!</a></p>
                                 <h:commandButton action="#{user.doLogin()}" value="Login" />
                             </h:form>

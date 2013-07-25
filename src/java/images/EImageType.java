@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import org.apache.commons.lang.SystemUtils;
 import session.SessionImage;
 
 /**
@@ -43,7 +44,8 @@ public enum EImageType {
     public String getiSenseBinaryPath() {
         factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
         em = factory.createEntityManager();
-        File file;
+                
+        File temp;
         FileOutputStream fileOutputStream = null;
 
         TypedQuery<SessionImage> query = em.createQuery("select image from SessionImage image WHERE image.type = :imageType", SessionImage.class)
@@ -54,19 +56,19 @@ public enum EImageType {
         byte[] image = sessionImage.getImage();
 
         try {
-            file = new File("iSenseImage.bin");
-            file.setReadable(true);
-            fileOutputStream = new FileOutputStream(file);
+            temp = File.createTempFile("iSenseImage.bin",null);
+            temp.setReadable(true);
+            fileOutputStream = new FileOutputStream(temp);
 
-            if (!file.exists()) {
-                file.createNewFile();
+            if (!temp.exists()) {
+                temp.createNewFile();
             }
 
             fileOutputStream.write(image);
             fileOutputStream.flush();
             fileOutputStream.close();
             
-            return file.getAbsolutePath();       
+            return temp.getAbsolutePath();       
         } catch (IOException e) {
             Logger.getLogger(EImageType.class.getName()).log(Level.SEVERE, e.toString());
             return "";

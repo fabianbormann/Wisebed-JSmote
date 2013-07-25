@@ -45,7 +45,7 @@ public class ImageTypeTest {
     public void tearDown() {
     }
 
-    // @Test
+    //@Test
     public void storeBinaryTest() {
         try {
             String relativeWebPath = "C:\\Users\\Fabian\\GSoC\\Wisebed-JSmote\\binaryImages\\remote_app.bin";

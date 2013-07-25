@@ -21,8 +21,8 @@ public class User {
     private String urnPrefix;
     private String nodeURNs;
     private String secretReservationKey;
-    private Integer offset = 0;
-    private Integer duration = 5;
+    private int offset;
+    private int duration;
     private boolean experimentLogin = false;
     private UserController controller = new UserController(this);
 
@@ -42,19 +42,19 @@ public class User {
         this.nodeURNs = nodeURNs;
     }
 
-    public Integer getOffset() {
+    public int getOffset() {
         return offset;
     }
 
-    public void setOffset(Integer offset) {
+    public void setOffset(int offset) {
         this.offset = offset;
     }
 
-    public Integer getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(Integer duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
