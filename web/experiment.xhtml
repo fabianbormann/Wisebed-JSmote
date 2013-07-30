@@ -24,7 +24,7 @@
                         <h:inputTextarea styleClass="flashArrayArea" value="#{experiment.nodes}"></h:inputTextarea><br />
                         <label>Javascriptcode:</label>
                         <h:inputTextarea value="#{experiment.code}" styleClass="jsArea"></h:inputTextarea><br />
-                        <h:inputTextarea  readonly="true" styleClass="nodeConsole"></h:inputTextarea><br />
+                        <h:inputTextarea  value="#{Node.listen()}" readonly="true" styleClass="nodeConsole"></h:inputTextarea><br />
                         <h:commandButton action="#{experiment.run()}" value="run">
                             <f:param name="show" value="#{param.show}" />
                         </h:commandButton>

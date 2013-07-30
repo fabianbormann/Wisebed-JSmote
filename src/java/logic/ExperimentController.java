@@ -20,6 +20,8 @@ import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -73,7 +75,7 @@ public class ExperimentController {
             Logger.getLogger(ExperimentController.class.getName()).log(Level.SEVERE, e.toString());
         }
     }
-
+    
     public Experiment[] getPreviousExperiments() {
         try {
             SessionUser databaseUser = this.userService.getSessionUser((String) httpSession.getAttribute("username"));
@@ -365,111 +367,6 @@ public class ExperimentController {
 
         } catch (Exception e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, e.toString());
-        }
-    }
-
-    /**
-     * Listen Node Messages from all Nodes in this experiment
-     * @throws MalformedURLException
-     * @throws ExperimentNotRunningException_Exception 
-     */
-    public void listenMessageFromNodes() throws MalformedURLException, ExperimentNotRunningException_Exception {
-        String secretReservationKeys = this.getExperiment().getReservationKey();
-        final boolean csv = System.getProperty("testbed.listtype") != null && "csv".equals(System.getProperty("testbed.listtype"));
-
-        Integer protobufPort = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
-        boolean useProtobuf = protobufHost != null && protobufPort != null;
-
-        SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
-
-        Controller controller = new Controller() {
-            @Override
-            public void receive(List msgs) {
-                for (int i = 0; i < msgs.size(); i++) {
-                    Message msg = (Message) msgs.get(i);
-                    synchronized (System.out) {
-
-                        String text = StringUtils.replaceNonPrintableAsciiCharacters(new String(msg.getBinaryData()));
-
-                        if (csv) {
-                            text = text.replaceAll(";", "\\;");
-                        }
-
-                        System.out.print(new org.joda.time.DateTime(msg.getTimestamp().toGregorianCalendar()));
-                        System.out.print(csv ? ";" : " | ");
-                        System.out.print(msg.getSourceNodeId());
-                        System.out.print(csv ? ";" : " | ");
-                        System.out.print(text);
-                        System.out.print(csv ? ";" : " | ");
-                        System.out.print(StringUtils.toHexString(msg.getBinaryData()));
-                        System.out.println();
-                    }
-                }
-            }
-
-            @Override
-            public void receiveStatus(List requestStatuses) {
-            }
-
-            @Override
-            public void receiveNotification(List msgs) {
-                for (int i = 0; i < msgs.size(); i++) {
-                    System.err.print(new org.joda.time.DateTime());
-                    System.err.print(csv ? ";" : " | ");
-                    System.err.print("Notification");
-                    System.err.print(csv ? ";" : " | ");
-                    System.err.print(msgs.get(i));
-                    System.err.println();
-                }
-            }
-
-            @Override
-            public void experimentEnded() {
-                Logger.getLogger(User.class.getName()).log(Level.INFO, "Experiment ended");
-            }
-        };
-
-        if (useProtobuf) {
-
-            ProtobufControllerClient pcc = ProtobufControllerClient.create(
-                    protobufHost,
-                    protobufPort,
-                    BeanShellHelper.parseSecretReservationKeys(secretReservationKeys));
-            pcc.addListener(new ProtobufControllerAdapter(controller));
-            try {
-                pcc.connect();
-            } catch (Exception e) {
-                useProtobuf = false;
-            }
-        }
-
-        if (!useProtobuf) {
-
-            DelegatingController delegator = new DelegatingController(controller);
-            delegator.publish(localControllerEndpointURL);
-            Logger.getLogger(User.class.getName()).log(Level.INFO, "Local controller published on url: {}", localControllerEndpointURL);
-
-        }
-
-        String wsnEndpointURL = null;
-        try {
-            wsnEndpointURL = sessionManagement.getInstance(
-                    BeanShellHelper.parseSecretReservationKeys(secretReservationKeys),
-                    (useProtobuf ? "NONE" : localControllerEndpointURL));
-        } catch (UnknownReservationIdException_Exception e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, "There was no reservation found with the given secret reservation key. Exiting.");
-        }
-
-        Logger.getLogger(User.class.getName()).log(Level.INFO, "Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
-        WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
-        final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
-
-        while (true) {
-            try {
-                System.in.read();
-            } catch (Exception e) {
-                System.err.println(e);
-            }
         }
     }
 }
