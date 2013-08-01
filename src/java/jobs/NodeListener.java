@@ -18,6 +18,7 @@ import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
 import eu.wisebed.api.wsn.WSN;
 import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,11 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-import model.User;
 import service.UserService;
 import session.SessionExperiment;
 import session.SessionUser;
@@ -40,8 +39,7 @@ import session.SessionUser;
  * @author Fabian
  */
 @ManagedBean(name = "Node")
-@ApplicationScoped
-public class NodeListener implements Runnable {
+public class NodeListener {
 
     String localControllerEndpointURL;
     String sessionManagementEndpointURL = "http://wisebed.itm.uni-luebeck.de:8888/sessions";
@@ -50,28 +48,40 @@ public class NodeListener implements Runnable {
     private String reservationKey = "";
     private String log = "";
     private UserService userService = new UserService();
-    private Logger debug = Logger.getLogger(NodeListener.class.getName());
+    private static final Logger debug = Logger.getLogger(NodeListener.class.getName());
     FacesContext context = FacesContext.getCurrentInstance();
     HttpSession httpSession = (HttpSession) context.getExternalContext().getSession(true);
 
-    @Override
     public void run() {
-        if (!(this.reservationKey.isEmpty())) {
+        debug.log(Level.INFO, "runing!");
+
+        if (this.reservationKey.isEmpty()) {
+            debug.log(Level.INFO, "Key is empty");
+        } else {
+            debug.log(Level.INFO, "Key is {0}", this.reservationKey);
+
             try {
+                debug.log(Level.INFO, "reservation key is not empty and listening was starting");
                 listenMessageFromNodes();
             } catch (Exception e) {
-                Logger.getLogger(NodeListener.class.getName()).log(Level.SEVERE, e.toString());
+                debug.log(Level.INFO, "An error ocurred while listen to the nodes");
+                debug.log(Level.SEVERE, e.toString());
             }
         }
     }
 
-    public String listen(){
-        SessionExperiment experiment = this.getExperiment();       
-        this.reservationKey = experiment.getReservationKey();
-        return this.log;
+    public String listen() {
+        SessionExperiment experiment = this.getExperiment();
+
+        if (experiment == null) {
+            return "null";
+        } else {
+            this.reservationKey = experiment.getReservationKey();
+            this.run();
+            return this.log;
+        }
     }
 
-    
     private SessionExperiment getExperiment() {
         try {
             SessionUser databaseUser = this.userService.getSessionUser((String) httpSession.getAttribute("username"));
@@ -82,16 +92,17 @@ public class NodeListener implements Runnable {
                 return experiment;
             }
         } catch (Exception e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, e.toString());
+            debug.log(Level.INFO, "An error ocurred while loading the experiment");
+            debug.log(Level.SEVERE, e.toString());
             return null;
         }
     }
-    
+
     private int getExperimentId() {
         Map<String, String> params = context.getExternalContext().getRequestParameterMap();
         return Integer.parseInt(params.get("show"));
     }
-    
+
     /**
      * Listen Node Messages from all Nodes in this experiment
      *
@@ -99,9 +110,9 @@ public class NodeListener implements Runnable {
      * @throws ExperimentNotRunningException_Exception
      */
     public void listenMessageFromNodes() throws MalformedURLException, ExperimentNotRunningException_Exception, IOException {
-        
+
         debug.log(Level.INFO, "start with listen to the nodes");
-        
+
         final boolean csv = System.getProperty("testbed.listtype") != null && "csv".equals(System.getProperty("testbed.listtype"));
 
         Integer protobufPort = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
@@ -121,7 +132,7 @@ public class NodeListener implements Runnable {
                         if (csv) {
                             text = text.replaceAll(";", "\\;");
                         }
-
+                        debug.log(Level.INFO, text);
                         System.out.print(new org.joda.time.DateTime(msg.getTimestamp().toGregorianCalendar()));
                         System.out.print(csv ? ";" : " | ");
                         System.out.print(msg.getSourceNodeId());
@@ -152,7 +163,7 @@ public class NodeListener implements Runnable {
 
             @Override
             public void experimentEnded() {
-                Logger.getLogger(User.class.getName()).log(Level.INFO, "Experiment ended");
+                debug.log(Level.INFO, "Experiment ended");
             }
         };
 
@@ -166,6 +177,7 @@ public class NodeListener implements Runnable {
             try {
                 pcc.connect();
             } catch (Exception e) {
+                debug.log(Level.SEVERE, e.toString());
                 useProtobuf = false;
             }
         }
@@ -174,7 +186,7 @@ public class NodeListener implements Runnable {
 
             DelegatingController delegator = new DelegatingController(controller);
             delegator.publish(localControllerEndpointURL);
-            Logger.getLogger(User.class.getName()).log(Level.INFO, "Local controller published on url: {}", localControllerEndpointURL);
+            debug.log(Level.INFO, "Local controller published on url: {}", localControllerEndpointURL);
 
         }
 
@@ -184,27 +196,27 @@ public class NodeListener implements Runnable {
                     BeanShellHelper.parseSecretReservationKeys(reservationKey),
                     (useProtobuf ? "NONE" : localControllerEndpointURL));
         } catch (UnknownReservationIdException_Exception e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, "There was no reservation found with the given secret reservation key. Exiting.");
+            debug.log(Level.SEVERE, "There was no reservation found with the given secret reservation key. Exiting.");
+            debug.log(Level.SEVERE, e.toString());
         }
 
-        Logger.getLogger(User.class.getName()).log(Level.INFO, "Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
+        debug.log(Level.INFO, "Got a WSN instance URL, endpoint is: {0}", wsnEndpointURL);
         WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
         final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
 
-        while (System.in.read() != -1) {
-        }
-
-        InputStream inputStream = System.in;
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        StringBuilder stringBuildReader = new StringBuilder();
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String read = bufferedReader.readLine();
-
-        while (read != null) {
-            stringBuildReader.append(read);
-            read = bufferedReader.readLine();
-        }
-
-        this.log += stringBuildReader.toString();
+//        InputStream receivedBytes = new ByteArrayInputStream()
+//        
+//        InputStream inputStream = System.in;
+//        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+//        StringBuilder stringBuildReader = new StringBuilder();
+//        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//        String read = bufferedReader.readLine();
+//
+//        while (read != null) {
+//            stringBuildReader.append(read);
+//            read = bufferedReader.readLine();
+//        }
+//
+//        this.log += stringBuildReader.toString();
     }
 }
