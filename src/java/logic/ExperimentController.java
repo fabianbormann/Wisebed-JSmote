@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -42,7 +43,9 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import jobs.NodeWriter;
 import model.Experiment;
+import model.Node;
 import model.User;
 import service.ExperimentService;
 import service.UserService;
@@ -235,138 +238,19 @@ public class ExperimentController {
 
         remote.flashRemoteImage();
     }
-
-    /**
-     * Send Message to targetNodes
-     * @param targetNodes
-     * @param message
-     * @throws UnknownHostException
-     * @throws ExperimentNotRunningException_Exception
-     * @throws MalformedURLException
-     * @throws InterruptedException
-     * @throws ExecutionException
-     * @throws DatatypeConfigurationException 
-     */
-    public void sendMessageToNodes(String targetNodes, String message) throws UnknownHostException, ExperimentNotRunningException_Exception, MalformedURLException, InterruptedException, ExecutionException, DatatypeConfigurationException {
-
-        String secretReservationKeys = this.getExperiment().getReservationKey();
-        boolean csv = System.getProperty("testbed.listtype") != null && "csv".equals(System.getProperty("testbed.listtype"));
-
-        Integer protobufPort = protobufPortString == null ? null : Integer.parseInt(protobufPortString);
-        boolean useProtobuf = protobufHost != null && protobufPort != null;
-
-        SessionManagement sessionManagement = WSNServiceHelper.getSessionManagementService(sessionManagementEndpointURL);
-
-        String wsnEndpointURL = null;
+    
+    public void send(){
+        SessionExperiment experiment = this.getExperiment();
+        ArrayList<String> nodesAsStrings = new ArrayList<String>();
+        
+        for(Node node : experiment.getNodes()){
+            nodesAsStrings.add(node.toString());
+        }
+        
         try {
-            wsnEndpointURL = sessionManagement.getInstance(
-                    BeanShellHelper.parseSecretReservationKeys(secretReservationKeys),
-                    (useProtobuf ? "NONE" : this.localControllerEndpointURL));
-        } catch (UnknownReservationIdException_Exception e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, "There was no reservation found with the given secret reservation key. Exiting.");
-        }
-
-        WSN wsnService = WSNServiceHelper.getWSNService(wsnEndpointURL);
-        final WSNAsyncWrapper wsn = WSNAsyncWrapper.of(wsnService);
-
-        Controller controller = new Controller() {
-            @Override
-            public void receive(List msg) {
-                // nothing to do
-            }
-
-            @Override
-            public void receiveStatus(List requestStatuses) {
-                wsn.receive(requestStatuses);
-            }
-
-            @Override
-            public void receiveNotification(List msgs) {
-                for (int i = 0; i < msgs.size(); i++) {
-                    Logger.getLogger(User.class.getName()).log(Level.INFO, (String) msgs.get(i));
-                }
-            }
-
-            @Override
-            public void experimentEnded() {
-                Logger.getLogger(User.class.getName()).log(Level.INFO, "Experiment ended");
-            }
-        };
-
-        // try to connect via unofficial protocol buffers API if hostname and port are set in the configuration
-        if (useProtobuf) {
-
-            ProtobufControllerClient pcc = ProtobufControllerClient.create(
-                    protobufHost,
-                    protobufPort,
-                    BeanShellHelper.parseSecretReservationKeys(secretReservationKeys));
-            pcc.addListener(new ProtobufControllerAdapter(controller));
-            try {
-                pcc.connect();
-            } catch (Exception e) {
-                useProtobuf = false;
-            }
-        }
-
-        if (!useProtobuf) {
-
-            DelegatingController delegator = new DelegatingController(controller);
-            delegator.publish(this.localControllerEndpointURL);
-            Logger.getLogger(User.class.getName()).log(Level.INFO, "Local controller published on url: {}", this.localControllerEndpointURL);
-
-        }
-
-        Logger.getLogger(User.class.getName()).log(Level.INFO, "Got a WSN instance URL, endpoint is: {}", wsnEndpointURL);
-
-        // retrieve reserved node URNs from testbed
-        List nodeURNs;
-        if (targetNodes != null && !"".equals(targetNodes)) {
-            nodeURNs = Lists.newArrayList(targetNodes.split(","));
-            Logger.getLogger(User.class.getName()).log(Level.INFO, "Selected the following node URNs: {}", nodeURNs);
-        } else {
-            nodeURNs = WiseMLHelper.getNodeUrns(wsn.getNetwork().get(), new String[]{});
-            Logger.getLogger(User.class.getName()).log(Level.INFO, "Retrieved the following node URNs: {}", nodeURNs);
-        }
-
-        // Constructing UART Message from Input String (Delimited by ",")
-        // Supported Prefixes are "0x" and "0b", otherwise Base_10 (DEZ) is assumed	
-        String[] splitMessage = message.split(",");
-        byte[] messageToSendBytes = new byte[splitMessage.length];
-        String messageForOutputInLog = "";
-        for (int i = 0; i < splitMessage.length; i++) {
-            int type = 10;
-            if (splitMessage[i].startsWith("0x")) {
-                type = 16;
-                splitMessage[i] = splitMessage[i].replace("0x", "");
-            } else if (splitMessage[i].startsWith("0b")) {
-                type = 2;
-                splitMessage[i] = splitMessage[i].replace("0b", "");
-            }
-            BigInteger b = new BigInteger(splitMessage[i], type);
-            messageToSendBytes[i] = (byte) b.intValue();
-            messageForOutputInLog = messageForOutputInLog + b.intValue() + " ";
-        }
-
-        Logger.getLogger(User.class.getName()).log(Level.INFO, "Sending Message [ {0}] to nodes...", messageForOutputInLog);
-
-        // Constructing the Message
-        Message binaryMessage = new Message();
-        binaryMessage.setBinaryData(messageToSendBytes);
-
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTimeInMillis(System.currentTimeMillis());
-
-        binaryMessage.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(c));
-        binaryMessage.setSourceNodeId("urn:wisebed:uzl1:0xFFFF");
-
-        Future sendFuture = wsn.send(nodeURNs, binaryMessage, 10, TimeUnit.SECONDS);
-        try {
-            JobResult sendJobResult = (JobResult) sendFuture.get();
-            sendJobResult.printResults(System.out, csv);
-            Logger.getLogger(User.class.getName()).log(Level.INFO, "Shutting down...");
-
+            NodeWriter.sendMessage(nodesAsStrings, this.code, experiment.getReservationKey());
         } catch (Exception e) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, e.toString());
+            Logger.getLogger(ExperimentController.class.getName()).log(Level.SEVERE, e.toString());
         }
     }
 }
