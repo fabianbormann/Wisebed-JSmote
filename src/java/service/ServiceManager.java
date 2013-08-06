@@ -40,6 +40,7 @@ public class ServiceManager implements Serializable {
      * @param experiment
      */
     public void createUser(SessionUser user, SessionExperiment experiment) {
+        user.setName(user.getName().toLowerCase());
         user.addExperiment(experiment);
 
         em.getTransaction().begin();
@@ -55,6 +56,7 @@ public class ServiceManager implements Serializable {
      * @param experiment
      */
     public void createUser(SessionUser user) {
+        user.setName(user.getName().toLowerCase());
         em.getTransaction().begin();
         em.persist(user);
         em.getTransaction().commit();
@@ -114,7 +116,7 @@ public class ServiceManager implements Serializable {
     }
 
     public void removeUser(SessionUser sessionUser) throws DatabaseUserNotFoundException {
-        String username = sessionUser.getName();
+        String username = sessionUser.getName().toLowerCase();
 
         TypedQuery<SessionUser> query = em.createQuery("select user from SessionUser user WHERE user.name = :username", SessionUser.class)
                 .setParameter("username", username);

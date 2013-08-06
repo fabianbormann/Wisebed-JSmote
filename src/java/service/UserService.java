@@ -37,16 +37,16 @@ public class UserService {
         TypedQuery<SessionUser> query = em.createQuery("SELECT user FROM SessionUser user WHERE user.name = :name AND "
                 + "user.password = :password",
          SessionUser.class)
-        .setParameter("name", username)
+        .setParameter("name", username.toLowerCase())
         .setParameter("password", password);
          
         return !(query.getResultList().isEmpty());       
     }
     
     public SessionUser getSessionUser(String username) throws DatabaseUserDuplicationException, DatabaseUserNotFoundException{
-         TypedQuery<SessionUser> query = em.createQuery("SELECT user FROM SessionUser user WHERE user.name = :name",
+        TypedQuery<SessionUser> query = em.createQuery("SELECT user FROM SessionUser user WHERE user.name = :name",
          SessionUser.class)
-        .setParameter("name", username);
+        .setParameter("name", username.toLowerCase());
          
         if(query.getResultList().isEmpty()){
             throw new DatabaseUserNotFoundException();

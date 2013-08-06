@@ -33,22 +33,9 @@
                                 <label>Password</label>
                                 <h:inputSecret value="#{user.password}"/>
 
-                                <label class="checkbox">
-                                    <h:selectBooleanCheckbox id="selectedExperiments" onchange="manageExperimentLogin(this.checked);" value="#{user.experimentLogin}"/>
-                                    Login with experiment
-                                </label>
-
                                 <label>URN Prefix</label>
                                 <span class="uneditable-input">urn:wisebed:uzl1:</span>
-                                <label>Node URN's (use "," as delimiter)</label>
-                                <h:inputTextarea id="nodeUrns" value="#{user.nodeURNs}"/>
-                                <br />		        	
-                                <label>duration (in minutes)</label>
-                                <!-- <input type="number"  min="0" max="60"/> -->
-                                <h:inputText id="duration" value="#{user.duration}"/>
-                                <label>offset (in minutes)</label>
-                                <!-- <input type="number"  min="0" max="60"/> -->
-                                <h:inputText id="offset" value="#{user.offset}"/>     	
+                                
                                 <hr/><p>No account yet? <a href="http://wisebed.eu/site/index.php/register/">Register here!</a></p>
                                 <h:commandButton action="#{user.doLogin()}" value="Login" />
                             </h:form>

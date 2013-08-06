@@ -6,7 +6,10 @@ package logic;
 
 import eu.wisebed.api.rs.ReservervationConflictExceptionException;
 import eu.wisebed.api.snaa.AuthenticationExceptionException;
+import eu.wisebed.api.snaa.AuthenticationTriple;
+import eu.wisebed.api.snaa.SNAA;
 import eu.wisebed.api.snaa.SNAAExceptionException;
+import eu.wisebed.testbed.api.snaa.helpers.SNAAServiceHelper;
 import exceptions.DatabaseUserDuplicationException;
 import exceptions.DatabaseUserNotFoundException;
 import java.util.ArrayList;
@@ -16,7 +19,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -36,6 +38,7 @@ import session.SessionUser;
 @SessionScoped
 public class UserController {
 
+    private final static Logger logger = Logger.getLogger(UserController.class.getName());
     ServiceManager session = new ServiceManager();
     UserService userService = new UserService();
     Reservation reservation = new Reservation();
@@ -82,11 +85,7 @@ public class UserController {
                 UrnArrayList.add(new Node(nodeUrn));
             }
 
-            if (userService.userExists(user.getUsername(), user.getPassword())) {
-                updateExistingUser(experimentName, UrnArrayList, date);
-            } else {
-                storeNewSession(experimentName, UrnArrayList, date);
-            }
+            updateExistingUser(experimentName, UrnArrayList, date);
 
             httpSession.setAttribute("authenticated", this.user.hashCode());
             httpSession.setAttribute("username", this.user.getUsername());
@@ -126,23 +125,8 @@ public class UserController {
         }
     }
 
-    private void storeNewSession(String experimentName, ArrayList<Node> NodeList, Date date) {
-        SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
-
-        SessionExperiment sessionExperiment = new SessionExperiment(experimentName, NodeList, date, sessionUser, user.getSecretReservationKey());
-
-        sessionExperiment.setDuration(user.getDuration());
-        sessionExperiment.setOffset(user.getOffset());
-
-        session.createUser(sessionUser, sessionExperiment);
-    }
-
     public String startLogin() {
-        if (user.getExperimentLogin() == true) {
-            return this.reserve();
-        } else {
-            return userLoginPossible();
-        }
+        return userLoginPossible();
     }
 
     private String userLoginPossible() {
@@ -156,8 +140,12 @@ public class UserController {
                 return "index";
             }
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
-            return "index";
+            if (e.getClass().equals(DatabaseUserNotFoundException.class)) {
+                return createNewUser();
+            } else {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, e.toString());
+                return "index";
+            }
         }
     }
 
@@ -169,5 +157,36 @@ public class UserController {
 
     public String startReservation() {
         return this.reserve();
+    }
+
+    private String createNewUser() {
+        String snaaEndpointURL = "http://wisebed.itm.uni-luebeck.de:8890/snaa";
+        SNAA authenticationSystem = SNAAServiceHelper.getSNAAService(snaaEndpointURL);
+
+        AuthenticationTriple credentials = new AuthenticationTriple();
+        //TODO variable urn prefix
+        credentials.setUrnPrefix("urn:wisebed:uzl1:");
+        credentials.setUsername(user.getUsername()+ "@wisebed1.itm.uni-luebeck.de");
+        credentials.setPassword(user.getPassword());
+        List credentialsList = new ArrayList();
+        credentialsList.add(credentials);
+
+        logger.info("Authenticating...");
+        try {
+            List secretAuthenticationKeys = authenticationSystem.authenticate(credentialsList);
+            logger.info("Successfully authenticated!");
+
+            SessionUser sessionUser = new SessionUser(user.getUsername(), user.getPassword());
+            session.createUser(sessionUser);
+
+            return "home";
+
+        } catch (AuthenticationExceptionException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+            return "index";
+        } catch (SNAAExceptionException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+            return "index";
+        }
     }
 }

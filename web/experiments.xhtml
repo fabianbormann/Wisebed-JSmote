@@ -10,11 +10,18 @@
                 <!-- begin content -->
                 <h1>Previous Experiments</h1>
                 <br />
-                <p>Click on a experiment in the table to see more information like
-                    your source code and the Node URNs.</p>
-                <br />
+                
+                <h:panelGroup layout="block" rendered="#{experiment.experimentListIsEmpty() == false}">
+                    Click on a experiment in the table to see more information like
+                    your source code and the Node URNs.
+                </h:panelGroup>
+   
+                <h:panelGroup layout="block" styleClass="alert alert-info" rendered="#{experiment.experimentListIsEmpty() == true}">
+                    You don't have any experiments yet.
+                </h:panelGroup>               
+                
                 <h:dataTable value="#{experiment.previousExperiments}" var="current_experiment"
-                             styleClass="table table-hover table-striped">
+                             styleClass="table table-hover table-striped" rendered="#{experiment.experimentListIsEmpty() == false}">
                     <h:column>
                         <f:facet name="header">#</f:facet>
                             #{current_experiment.index}       

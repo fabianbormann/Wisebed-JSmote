@@ -4,45 +4,19 @@
  */
 package logic;
 
-import com.google.common.collect.Lists;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper;
-import de.uniluebeck.itm.wisebed.cmdlineclient.DelegatingController;
-import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
-import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufControllerAdapter;
-import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufControllerClient;
-import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
-import eu.wisebed.api.common.Message;
-import eu.wisebed.api.controller.Controller;
-import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
-import eu.wisebed.api.sm.SessionManagement;
-import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
-import eu.wisebed.api.wsn.WSN;
-import eu.wisebed.testbed.api.wsn.WSNServiceHelper;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
+import exceptions.DatabaseUserDuplicationException;
+import exceptions.DatabaseUserNotFoundException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
-
 import javax.servlet.http.HttpSession;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import jobs.NodeWriter;
 import model.Experiment;
 import model.Node;
@@ -78,12 +52,11 @@ public class ExperimentController {
             Logger.getLogger(ExperimentController.class.getName()).log(Level.SEVERE, e.toString());
         }
     }
-    
+
     public Experiment[] getPreviousExperiments() {
         try {
             SessionUser databaseUser = this.userService.getSessionUser((String) httpSession.getAttribute("username"));
             ArrayList<Experiment> experimentList = new ArrayList<Experiment>();
-
             int experimentIndex = 1;
 
             for (SessionExperiment previousExperiment : databaseUser.getExperiments()) {
@@ -91,7 +64,6 @@ public class ExperimentController {
                         previousExperiment.getNodes().size(), previousExperiment.getDatetime()));
                 experimentIndex++;
             }
-
             return experimentList.toArray(new Experiment[experimentList.size()]);
         } catch (Exception e) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, e.toString());
@@ -238,19 +210,33 @@ public class ExperimentController {
 
         remote.flashRemoteImage();
     }
-    
-    public void send(){
+
+    public void send() {
         SessionExperiment experiment = this.getExperiment();
         ArrayList<String> nodesAsStrings = new ArrayList<String>();
-        
-        for(Node node : experiment.getNodes()){
+
+        for (Node node : experiment.getNodes()) {
             nodesAsStrings.add(node.toString());
         }
-        
+
         try {
             NodeWriter.sendMessage(nodesAsStrings, this.code, experiment.getReservationKey());
         } catch (Exception e) {
             Logger.getLogger(ExperimentController.class.getName()).log(Level.SEVERE, e.toString());
+        }
+    }
+
+    public boolean experimentListIsEmpty() {
+        try {
+            SessionUser databaseUser = this.userService.getSessionUser((String) httpSession.getAttribute("username"));
+            if (databaseUser.getExperiments().isEmpty()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            Logger.getLogger(ExperimentController.class.getName()).log(Level.SEVERE, e.toString());
+            return true;
         }
     }
 }
