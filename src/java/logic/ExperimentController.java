@@ -143,7 +143,7 @@ public class ExperimentController {
     }
 
     public String run() {
-        this.doFlash();
+        //this.doFlash();
         return "experiment?show=" + this.getExperimentId();
     }
 

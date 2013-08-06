@@ -1,5 +1,11 @@
 #wrapper {width: 70%; margin: 0 auto;}
 
-.jsArea {width: 100%; max-width: 100%;  min-height: 100px;}
 .nodeConsole {width: 100%; max-width: 100%;  min-height: 100px; background: black !important; cursor: default !important; color: white !important; font-family: monospace !important;}
 .flashArrayArea {width: 100%; max-width: 100%; min-height: 50px;}
+
+.codeAndPreview {overflow: hidden;}
+
+.CodeMirror {float: left; width: 48%; height: 300px; border: 1px solid #ccc; -webkit-border-radius: 4px;
+-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);}
+iframe {width: 45%; float: right; height: 300px; border: 1px solid #ccc; -webkit-border-radius: 4px;
+-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);}

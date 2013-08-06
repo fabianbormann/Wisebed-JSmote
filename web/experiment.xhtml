@@ -4,9 +4,9 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
-    
+
     <h:body> 
-        <ui:composition template="WEB-INF/templates/loggedUserTemplate.xhtml">
+        <ui:composition template="WEB-INF/templates/experimentTemplate.xhtml">
             <ui:define name="content">
                 <!-- breadcrumbs -->
                 <ul class="breadcrumb">
@@ -19,16 +19,46 @@
                     <p>Hey <b>#{user.username}</b> #{experiment.timeleft}</p>
                 </div>
                 <div spellcheck="false">
-                    <h:form>
+                    <h:form id="experimentForm">
                         <label>Run code on this nodes:</label>
                         <h:inputTextarea styleClass="flashArrayArea" value="#{experiment.nodes}"></h:inputTextarea><br />
-                        <label>Javascriptcode:</label>
-                        <h:inputTextarea value="#{experiment.code}" styleClass="jsArea"></h:inputTextarea><br />
+                        <label>Experiment code:</label>
+
+                        <div class="codeAndPreview">
+
+                            <h:inputTextarea id="code" value="#{experiment.code}"></h:inputTextarea>
+
+                            <iframe id="preview"></iframe>
+                            <script>
+                                var delay;
+                                // Initialize CodeMirror editor with a nice html5 canvas demo.
+                                var editor = CodeMirror.fromTextArea(document.getElementById("experimentForm:code"), {
+                                    mode: 'text/html',
+                                    tabMode: 'indent'
+                                });
+                                editor.on("change", function() {
+                                    clearTimeout(delay);
+                                    delay = setTimeout(updatePreview, 300);
+                                });
+
+                                function updatePreview() {
+                                    var previewFrame = document.getElementById("preview");
+                                    var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                                    preview.open();
+                                    preview.write(editor.getValue());
+                                    preview.close();
+                                }
+                                setTimeout(updatePreview, 300);
+                            </script>
+
+                        </div>
+                        <br />
+                        <br />
                         <h:inputTextarea  value="#{Node.listen()}" readonly="true" styleClass="nodeConsole"></h:inputTextarea><br />
-                        <h:commandButton action="#{experiment.run()}" value="flash">
+                        <h:commandButton action="#{experiment.run()}" value="Save">
                             <f:param name="show" value="#{param.show}" />
                         </h:commandButton>
-                        <h:commandButton action="#{experiment.send()}" value="send">
+                        <h:commandButton action="#{experiment.send()}" value="Send">
                             <f:param name="show" value="#{param.show}" />
                         </h:commandButton>
                     </h:form>   
