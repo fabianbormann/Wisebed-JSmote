@@ -1,7 +1,5 @@
 package jobs;
 
-import com.google.common.collect.Lists;
-import de.itm.uniluebeck.tr.wiseml.WiseMLHelper;
 import de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper;
 import de.uniluebeck.itm.wisebed.cmdlineclient.DelegatingController;
 import de.uniluebeck.itm.wisebed.cmdlineclient.jobs.JobResult;
