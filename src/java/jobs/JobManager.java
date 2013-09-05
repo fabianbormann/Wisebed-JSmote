@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import logic.ExperimentConsole;
@@ -23,7 +23,7 @@ import session.SessionUser;
  * @author Fabian
  */
 @ManagedBean(name = "job")
-@SessionScoped
+@ApplicationScoped
 public class JobManager {
 
     private static final Logger debug = Logger.getLogger(JobManager.class.getName());
@@ -32,27 +32,38 @@ public class JobManager {
     private ArrayList<NodeListener> listeners = new ArrayList<NodeListener>();
     private UserService userService = new UserService();
     private ExperimentConsole console = new ExperimentConsole();
-    private String reservationKey = "";
-    private String outputMessage = "";
+    private String experimentId;
+    private String consoleOutput = "";
 
-    public String listen() {
-        SessionExperiment experiment = this.getExperiment();
+    public String listen(String experimentId) {
+
+        if (experimentId.isEmpty()) {
+            experimentId = this.experimentId;
+        } else {
+            this.experimentId = experimentId;
+        }
+
+        debug.log(Level.INFO, experimentId);
+        SessionExperiment experiment = getExperiment(Integer.parseInt(experimentId));
 
         if (experiment == null) {
             return "Experiment not Found!";
-        } 
-        else {
+        } else {
             String currentKey = experiment.getReservationKey();
-            this.reservationKey = currentKey;
-            
+
             if (isAlreadyListen(currentKey)) {
-                return "";
+                consoleOutput += console.getConsole(experiment.getReservationKey());
+                return consoleOutput;
             } else {
                 try {
                     NodeListener listener = new NodeListener(currentKey, console);
                     listener.startListening();
                     this.listeners.add(listener);
-                    return "Start Listening...";
+
+                    console.LogToConsole(currentKey, "JSmote: Start Listening...");
+
+                    consoleOutput += console.getConsole(experiment.getReservationKey());
+                    return consoleOutput;
                 } catch (Exception e) {
                     if (e.getClass().equals(ExperimentNotRunningException_Exception.class)) {
                         return "Experiment is not running.";
@@ -64,11 +75,6 @@ public class JobManager {
         }
     }
 
-    public void refreshConsole(){
-        if(!this.reservationKey.isEmpty())
-            this.outputMessage = console.getConsole(this.reservationKey);
-    }
-    
     private boolean isAlreadyListen(String currentKey) {
         for (NodeListener listener : listeners) {
             if (listener.getReservationKey().equals(currentKey)) {
@@ -78,10 +84,10 @@ public class JobManager {
         return false;
     }
 
-    private SessionExperiment getExperiment() {
+    private SessionExperiment getExperiment(int experimentId) {
         try {
             SessionUser databaseUser = this.userService.getSessionUser((String) httpSession.getAttribute("username"));
-            SessionExperiment experiment = databaseUser.getExperiments().get(this.getExperimentId() - 1);
+            SessionExperiment experiment = databaseUser.getExperiments().get(experimentId - 1);
             if (experiment == null) {
                 return null;
             } else {
@@ -93,14 +99,4 @@ public class JobManager {
             return null;
         }
     }
-
-    private int getExperimentId() {
-        Map<String, String> params = context.getExternalContext().getRequestParameterMap();
-        return Integer.parseInt(params.get("show"));
-    }
-
-    public String getOutputMessage() {
-        return outputMessage;
-    }
-    
 }

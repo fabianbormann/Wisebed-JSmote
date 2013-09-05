@@ -28,7 +28,7 @@ public class ExperimentConsole {
         String outputString = "";
         
         for (String message : output){
-            outputString += message+"<br />";
+            outputString += message+" \n";
         }
         
         return outputString;

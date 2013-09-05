@@ -7,6 +7,13 @@
     <h:head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>JSmote for WISEBED Nodes</title>
+        
+        <script type="text/javascript">
+		var l = window.location;
+		var wisebedWebSocketBaseUrl = 'ws://' + l.host;
+		var wisebedBaseUrl = l.protocol + '//' + l.host;
+	</script>
+        
         <h:outputStylesheet library="css" name="bootstrap.css"/>
         <h:outputStylesheet library="css" name="style.css"/>
         <h:outputStylesheet library="css" name="codemirror.css"/>
@@ -17,6 +24,11 @@
         <h:outputScript library="js" name="mode/javascript.js" />
         <h:outputScript library="js" name="mode/css.js" />
         <h:outputScript library="js" name="mode/htmlmixed.js" />
+        
+        <h:outputScript library="js" name="lib/base64_encode.js" />
+        <h:outputScript library="js" name="lib/wisebed.js" />
+        <h:outputScript library="js" name="lib/CoAP.js" />
+        
         <h:outputScript library="js" name="main.js" />
     </h:head>
 

@@ -67,7 +67,7 @@ public class NodeListener {
             public void receive(List msgs) {
                 for (int i = 0; i < msgs.size(); i++) {
                     Message msg = (Message) msgs.get(i);
-                    synchronized (console) {
+                    synchronized (System.out) {
 
                         String text = StringUtils.replaceNonPrintableAsciiCharacters(new String(msg.getBinaryData()));
 
@@ -87,6 +87,7 @@ public class NodeListener {
                         outputMessage += StringUtils.toHexString(msg.getBinaryData());
                         
                         console.LogToConsole(reservationKey, outputMessage);
+                        debug.log(Level.INFO, outputMessage);
                     }
                 }
             }

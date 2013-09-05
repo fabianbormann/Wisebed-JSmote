@@ -7,7 +7,6 @@
       xmlns:p="http://primefaces.org/ui">
 
     <h:body> 
-        <f:ajax event="load" listener="#{job.listen()}" />
         <ui:composition template="WEB-INF/templates/experimentTemplate.xhtml">
             <ui:define name="content">
                 <!-- breadcrumbs -->
@@ -52,12 +51,10 @@
                                 }
                                 setTimeout(updatePreview, 300);
                             </script>
-
+                            
                         </div>
                         <br />
                         <br />
-                        <h:inputTextarea id="console" value="#{job.outputMessage}" readonly="true" styleClass="nodeConsole"></h:inputTextarea><br />
-                        <p:poll interval="5" listener="#{job.refreshConsole()}" update="console"/>
                         <h:commandButton action="#{experiment.run()}" value="Save">
                             <f:param name="show" value="#{param.show}" />
                         </h:commandButton>
@@ -65,6 +62,10 @@
                             <f:param name="show" value="#{param.show}" />
                         </h:commandButton>
                     </h:form>   
+                    <h:form id="consoleForm">
+                        <h:inputTextarea id="console" value="#{job.listen(param.show)}" readonly="true" styleClass="nodeConsole" ></h:inputTextarea><br />
+                        <p:poll interval="5" update="console" partialSubmit="true" />
+                    </h:form> 
                 </div>
             </ui:define>
         </ui:composition>
