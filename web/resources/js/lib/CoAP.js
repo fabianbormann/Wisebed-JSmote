@@ -2,12 +2,14 @@
   * CoAP functions
   **/
 
-function sendCoapMessage(messageType, payload){
+var CoAP = new function(){
 
-	var version = "01";
+  var CoAP_VERSION = "01";
 
-	switch (messageType) {
-  		case "CON": 
+  this.sendCoapMessage = function(messageType, payload){
+
+	 switch (messageType) {
+      case "CON": 
   			type = "00";
   			break;
   		case "NON":
@@ -27,12 +29,12 @@ function sendCoapMessage(messageType, payload){
   	var code = "0x0F"; // Request
   	var messageId = "0x00,0x00";
 
-  	var message = byteToHex(version+type+options)+","+code+","+messageId+getHexString(payload);
+  	var message = byteToHex(CoAP_VERSION+type+options)+","+code+","+messageId+getHexString(payload);
 
   	//return message;
-    alert(message);
+    //alert(message);
 
-    alert(wisebedBaseUrl);
+    //alert(wisebedBaseUrl);
 
     //DEBUG values 
     Wisebed.experiments.send("wisebed.itm.uni-luebeck.de", 
@@ -44,7 +46,7 @@ function sendCoapMessage(messageType, payload){
   * basic functions
   **/
 
-function getHexString(text){
+this.getHexString = function(text){
 
   var hexString = "";
 
@@ -107,4 +109,6 @@ function byteToDec(byte){
   (32*parseInt(nibble.charAt(2)))+(16*parseInt(nibble.charAt(3)))+(8*parseInt(nibble.charAt(4)))+
   (4*parseInt(nibble.charAt(5)))+(2*parseInt(nibble.charAt(6)))+(1*parseInt(nibble.charAt(7)));
   return dec;
+}
+
 }

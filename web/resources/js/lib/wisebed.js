@@ -40,6 +40,8 @@ var Wisebed = new function() {
 
         var self = this;
 
+        alert(wisebedWebSocketBaseUrl + '/ws/experiments/' + this.experimentId);
+
         this.socket = new WebSocket(wisebedWebSocketBaseUrl + '/ws/experiments/' + this.experimentId);
         this.socket.onmessage = function(event) {
             self.onmessage(JSON.parse(event.data));
