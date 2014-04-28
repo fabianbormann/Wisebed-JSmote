@@ -12,6 +12,7 @@ this projects aims at creating a remote control interface for wisebed nodes,
 which allows the easy programming and debugging of these applications inside a Webbrowser.
 
 Javascript Interface for Remote Controlling WISEBED Nodes (GSoC 2013)
+
 Copyright (C) 2013  Fabian Bormann
 
 This program is free software: you can redistribute it and/or modify
